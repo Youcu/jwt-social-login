@@ -1,5 +1,9 @@
 package com.hooby.token.system.security.jwt.config;
 
+import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
+import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
+import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
+import com.hooby.token.system.security.util.UserLoadService;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,32 @@ public class JwtConfig {
         }
 
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtTokenProvider jwtTokenProvider() {
+        return new JwtTokenProvider(secretKey);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtTokenResolver jwtTokenResolver() {
+        return new JwtTokenResolver(secretKey);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtTokenValidator jwtTokenValidator() {
+        return new JwtTokenValidator(secretKey);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtAuthenticationFilter JwtAuthenticationFilter(JwtTokenResolver jwtTokenResolver,
+                               UserLoadService userLoadService,
+                               JwtTokenValidator jwtTokenValidator) {
+        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator);
     }
 }
 
