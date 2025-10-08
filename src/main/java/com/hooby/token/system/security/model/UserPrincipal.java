@@ -3,15 +3,13 @@ package com.hooby.token.system.security.model;
 import com.hooby.token.domain.user.entity.Role;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -20,7 +18,7 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -39,9 +37,18 @@ public class UserPrincipal implements UserDetails {
                 .build();
     }
 
+    public static UserPrincipal toOAuth2(Long userId, String username, Role role) {
+        return UserPrincipal.builder()
+                .userId(userId)
+                .username(username)
+                .password(null)
+                .role(Objects.requireNonNull(role))
+                .build();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.toString())); // Override Method
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+role.name()));
     }
 
     @Override public String getUsername() { return username; }
