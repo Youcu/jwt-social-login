@@ -1,0 +1,17 @@
+package com.hooby.token.system.security.jwt.exception;
+
+import com.hooby.token.system.exception.model.ErrorCode;
+
+public class JwtParseException extends JwtBaseException {
+    public JwtParseException() {
+        super(ErrorCode.JWT_FAILED_PARSING);
+    }
+
+    public JwtParseException(String message) {
+        super(ErrorCode.JWT_FAILED_PARSING, message);
+    }
+
+    public JwtParseException(Throwable cause) {
+        super(ErrorCode.JWT_FAILED_PARSING, cause);
+    }
+}
