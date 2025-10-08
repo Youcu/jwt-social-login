@@ -1,19 +1,21 @@
 package com.hooby.token.domain.user.entity;
 
+import com.hooby.token.common.auditor.TimeBaseEntity;
 import com.hooby.token.domain.user.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @Entity
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Table(name = "users")
-public class User {
+public class User extends TimeBaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
