@@ -42,13 +42,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // Parse Token From Request
             String token = jwtTokenResolver.parseTokenFromRequest(request).orElseThrow(JwtMissingException::new);
-            // if (!jwtTokenValidator.isValid(token)) throw new JwtInvalidException();
-            // TODO: Token Validation -> Expiration, Validation, Blacklist
 
-            // Extract JWT Payload
+            // Extract JWT Payload with Validation (Token 자체의 유효성 검증)
             JwtDto.TokenPayload payload = jwtTokenResolver.resolveToken(token);
 
-            // ATK Validation: isAtk? isValidJti? isBlacklist?
+            // ATK Validation: isAtk? isValidJti? isBlacklist? (사용 목적에 따른 유효성 검증)
             if (payload.getTokenType() != TokenType.ACCESS) throw new JwtInvalidException();
             if (payload.getJti() == null) throw new JwtInvalidException();
             if (tokenRedisRepository.isAtkBlacklisted(payload.getJti())) throw new JwtBlacklistException();
@@ -63,9 +61,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Register Authentication to SecurityContextHolder
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            log.debug("JWT authentication successful for user: {}", userPrincipal.getUsername());
+            log.debug("🟢 JWT authentication successful for user: {}", userPrincipal.getUsername());
         } catch (JwtInvalidException e) {
-            log.error("JWT authentication failed", e);
+            log.error("⚠️ JWT authentication failed", e);
             SecurityContextHolder.clearContext();
         }
 
