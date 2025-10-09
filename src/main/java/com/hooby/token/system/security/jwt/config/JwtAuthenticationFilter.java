@@ -1,12 +1,11 @@
 package com.hooby.token.system.security.jwt.config;
 
 import com.hooby.token.system.security.jwt.dto.JwtDto;
-import com.hooby.token.system.security.jwt.entity.TokenType;
-import com.hooby.token.system.security.jwt.exception.JwtBlacklistException;
 import com.hooby.token.system.security.jwt.exception.JwtInvalidException;
 import com.hooby.token.system.security.jwt.exception.JwtMissingException;
 import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
+import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.UserLoadService;
 import java.io.IOException;
@@ -31,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenResolver jwtTokenResolver;
     private final UserLoadService userLoadService;
     private final TokenRedisRepository tokenRedisRepository;
+    private final JwtTokenValidator jwtTokenValidator;
 
     @Override
     protected void doFilterInternal(
@@ -47,9 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             JwtDto.TokenPayload payload = jwtTokenResolver.resolveToken(token);
 
             // ATK Validation: isAtk? isValidJti? isBlacklist? (사용 목적에 따른 유효성 검증)
-            if (payload.getTokenType() != TokenType.ACCESS) throw new JwtInvalidException();
-            if (payload.getJti() == null) throw new JwtInvalidException();
-            if (tokenRedisRepository.isAtkBlacklisted(payload.getJti())) throw new JwtBlacklistException();
+            jwtTokenValidator.validateAtk(payload);
 
             // Define UserPrincipal
             UserPrincipal userPrincipal = userLoadService.loadUserById(Long.valueOf(payload.getSubject()))

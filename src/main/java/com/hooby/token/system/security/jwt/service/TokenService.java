@@ -1,13 +1,17 @@
 package com.hooby.token.system.security.jwt.service;
 
+import com.hooby.token.system.exception.model.BaseException;
+import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.entity.TokenType;
 import com.hooby.token.system.security.jwt.exception.JwtInvalidException;
 import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
+import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.UserLoadService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,7 @@ public class TokenService {
     private final JwtTokenResolver jwtTokenResolver;
     private final TokenRedisRepository tokenRedisRepository;
     private final UserLoadService userLoadService;
+    private final JwtTokenValidator jwtTokenValidator;
 
     /**
      * <h4>Description</h4>
@@ -75,21 +80,24 @@ public class TokenService {
      * <h4>Details</h4><ul>
      * <li>1-1. 비교 검증: Redis RTK의 null 여부, 제공받은 RTK와 일치 여부, 블랙리스트 여부</li></ul><br>
      *
-     * @param refreshToken 클라이언트로부터 전달받은 Refresh Token 문자열
+     * @param request 클라이언트로부터 전달받은 Refresh Token 문자열을 포함한 Authorization Header
      * @return 새로 발급된 Access Token과 Refresh Token 정보를 담은 DTO
      * @throws JwtInvalidException 전달된 토큰이 유효하지 않거나, 허용된 Refresh Token이 아닐 경우 발생
      * @see TokenService#resolveUser(String)
+     * @see JwtTokenValidator
      */
-    public JwtDto.TokenInfo rotateByRtk(String refreshToken) {
+    public JwtDto.TokenInfo rotateByRtk(HttpServletRequest request) {
+        String refreshToken = jwtTokenResolver.parseTokenFromRequest(request)
+                .orElseThrow(() -> new BaseException(ErrorCode.JWT_MISSING));
+
         var payload = jwtTokenResolver.resolveToken(refreshToken);
-        if (payload.getTokenType() != TokenType.REFRESH) throw new JwtInvalidException();
+        jwtTokenValidator.validateRtk(payload);
 
         String subject = payload.getSubject();
         String submittedUuid = payload.getRefreshUuid();
 
-        String allowed = tokenRedisRepository.getAllowedRtk(subject);
-        if (allowed == null || !allowed.equals(submittedUuid)) throw new JwtInvalidException();
-        if (tokenRedisRepository.isRtkBlacklisted(submittedUuid)) throw new JwtInvalidException();
+        // AllowedRtk 와 SubmittedRtk Validation
+        jwtTokenValidator.validateSubmittedRtk(payload);
 
         UserPrincipal userPrincipal = resolveUser(subject);
         JwtDto.TokenPair tokenPair = jwtTokenProvider.createTokenPair(userPrincipal);
