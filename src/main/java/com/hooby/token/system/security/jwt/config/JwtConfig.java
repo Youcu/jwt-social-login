@@ -1,8 +1,8 @@
 package com.hooby.token.system.security.jwt.config;
 
+import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
-import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.util.UserLoadService;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -57,16 +57,11 @@ public class JwtConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public JwtTokenValidator jwtTokenValidator() {
-        return new JwtTokenValidator(secretKey);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public JwtAuthenticationFilter JwtAuthenticationFilter(JwtTokenResolver jwtTokenResolver,
-                               UserLoadService userLoadService,
-                               JwtTokenValidator jwtTokenValidator) {
-        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator);
+    public JwtAuthenticationFilter JwtAuthenticationFilter(
+            JwtTokenResolver jwtTokenResolver,
+            UserLoadService userLoadService,
+            TokenRedisRepository tokenRedisRepository) {
+        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, tokenRedisRepository);
     }
 }
 

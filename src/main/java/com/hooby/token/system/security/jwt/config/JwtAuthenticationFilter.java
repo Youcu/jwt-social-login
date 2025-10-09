@@ -1,10 +1,12 @@
 package com.hooby.token.system.security.jwt.config;
 
 import com.hooby.token.system.security.jwt.dto.JwtDto;
+import com.hooby.token.system.security.jwt.entity.TokenType;
+import com.hooby.token.system.security.jwt.exception.JwtBlacklistException;
 import com.hooby.token.system.security.jwt.exception.JwtInvalidException;
 import com.hooby.token.system.security.jwt.exception.JwtMissingException;
+import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
-import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.UserLoadService;
 import java.io.IOException;
@@ -28,8 +30,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenResolver jwtTokenResolver;
     private final UserLoadService userLoadService;
-    private final JwtTokenValidator jwtTokenValidator;
-    // TODO : Blacklist Validation Logic
+    private final TokenRedisRepository tokenRedisRepository;
 
     @Override
     protected void doFilterInternal(
@@ -40,13 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Parse Token From Request
-            String token = jwtTokenResolver.parseTokenFromRequest(request)
-                    .orElseThrow(JwtMissingException::new);
-
+            String token = jwtTokenResolver.parseTokenFromRequest(request).orElseThrow(JwtMissingException::new);
+            // if (!jwtTokenValidator.isValid(token)) throw new JwtInvalidException();
             // TODO: Token Validation -> Expiration, Validation, Blacklist
 
             // Extract JWT Payload
             JwtDto.TokenPayload payload = jwtTokenResolver.resolveToken(token);
+
+            // ATK Validation: isAtk? isValidJti? isBlacklist?
+            if (payload.getTokenType() != TokenType.ACCESS) throw new JwtInvalidException();
+            if (payload.getJti() == null) throw new JwtInvalidException();
+            if (tokenRedisRepository.isAtkBlacklisted(payload.getJti())) throw new JwtBlacklistException();
 
             // Define UserPrincipal
             UserPrincipal userPrincipal = userLoadService.loadUserById(Long.valueOf(payload.getSubject()))
@@ -68,14 +73,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication createAuthentication(UserPrincipal userPrincipal) {
-        List<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(userPrincipal.getRole().toString())
-        );
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(userPrincipal.getRole().name()));
 
-        return new UsernamePasswordAuthenticationToken(
-                userPrincipal,
-                null, // OAuth2 사용자는 패스워드 없음
-                authorities
-        );
+        return new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
     }
 }
