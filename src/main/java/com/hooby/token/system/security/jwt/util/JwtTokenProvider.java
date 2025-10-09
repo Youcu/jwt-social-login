@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class JwtTokenProvider {
@@ -19,39 +20,49 @@ public class JwtTokenProvider {
     @Value("${jwt.access-token-expiration-minutes}")
     private int accessTokenExpirationMinutes;
 
-
     @Value("${jwt.refresh-token-expiration-weeks}")
     private int refreshTokenExpirationWeeks;
 
     public JwtDto.TokenData createRefreshToken(UserPrincipal userPrincipal, String refreshUuid) {
-        JwtDto.TokenPayload payload = JwtDto.TokenPayload.builder()
-                .subject(getSubject(userPrincipal))
-                .tokenType(TokenType.REFRESH)
-                .expiredAt(LocalDateTime.now().plusWeeks(refreshTokenExpirationWeeks))
-                .refreshUuid(refreshUuid)
-                .build();
+        String jti = UUID.randomUUID().toString();
+        LocalDateTime exp = LocalDateTime.now().plusMinutes(refreshTokenExpirationWeeks);
 
-        String token = getToken(payload);
+        String token = Jwts.builder()
+                .subject(getSubject(userPrincipal))
+                .claim("refreshUuid", refreshUuid)
+                .claim("type", TokenType.REFRESH.name())
+                .id(jti)
+                .issuedAt(new Date())
+                .expiration(Date.from(exp.atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(secretKey)
+                .compact();
+
         return JwtDto.TokenData.builder()
                 .token(token)
-                .expiredAt(payload.getExpiredAt())
+                .expiredAt(exp)
+                .jti(jti)
                 .build();
     }
 
     public JwtDto.TokenData createAccessToken(UserPrincipal userPrincipal, String refreshUuid) {
-        JwtDto.TokenPayload payload = JwtDto.TokenPayload.builder()
-                .subject(getSubject(userPrincipal))
-                .tokenType(TokenType.ACCESS)
-                .expiredAt(LocalDateTime.now().plusMinutes(accessTokenExpirationMinutes))
-                .role(userPrincipal.getRole())
-                .refreshUuid(refreshUuid)
-                .build();
+        String jti = UUID.randomUUID().toString();
+        LocalDateTime exp = LocalDateTime.now().plusMinutes(accessTokenExpirationMinutes);
 
-        String token = getToken(payload);
+        String token = Jwts.builder()
+                .subject(getSubject(userPrincipal))
+                .claim("role", userPrincipal.getRole().name())
+                .claim("refreshUuid", refreshUuid)
+                .claim("type", TokenType.ACCESS.name())
+                .id(jti)
+                .issuedAt(new Date())
+                .expiration(Date.from(exp.atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(secretKey)
+                .compact();
 
         return JwtDto.TokenData.builder()
                 .token(token)
-                .expiredAt(payload.getExpiredAt())
+                .expiredAt(exp)
+                .jti(jti)
                 .build();
     }
 
@@ -68,33 +79,5 @@ public class JwtTokenProvider {
         return userPrincipal.getUserId() != null
                 ? userPrincipal.getUserId().toString()
                 : userPrincipal.getUsername();
-    }
-
-    private String getToken(JwtDto.TokenPayload payload) {
-        TokenType tokenType = payload.getTokenType();
-        switch (tokenType) {
-            case TokenType.ACCESS -> {
-                return Jwts.builder()
-                        .subject(payload.getSubject())
-                        .claim("role", payload.getRole())
-                        .claim("refreshUuid", payload.getRefreshUuid())
-                        .claim("type", payload.getTokenType())
-                        .issuedAt(new Date())
-                        .expiration(Date.from(payload.getExpiredAt().atZone(ZoneId.systemDefault()).toInstant()))
-                        .signWith(secretKey)
-                        .compact();
-            }
-            case TokenType.REFRESH -> {
-                return Jwts.builder()
-                        .subject(payload.getSubject())
-                        .claim("refreshUuid", payload.getRefreshUuid())
-                        .claim("type", payload.getTokenType())
-                        .issuedAt(new Date())
-                        .expiration(Date.from(payload.getExpiredAt().atZone(ZoneId.systemDefault()).toInstant()))
-                        .signWith(secretKey)
-                        .compact();
-            }
-            default -> throw new IllegalArgumentException("⚠️ Invalid Token Type");
-        }
     }
 }
