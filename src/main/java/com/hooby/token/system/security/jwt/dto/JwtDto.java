@@ -12,9 +12,9 @@ public class JwtDto {
     @NoArgsConstructor
     @Getter
     public static class TokenData {
-        // 프론트엔드에서 expiration을 Token String을 풀어서 아는 것보다는, 직접 알게 하는게 나을 것 같아서 만듦
         private String token; // returned by Jwts.buidler()
         private LocalDateTime expiredAt;
+        private String jti;
     }
 
     @Builder @AllArgsConstructor @NoArgsConstructor @Getter
@@ -37,6 +37,7 @@ public class JwtDto {
         private Role role;
         private TokenType tokenType;
         private String refreshUuid;
+        private String jti;
     }
 
     @Builder @AllArgsConstructor @NoArgsConstructor @Getter
