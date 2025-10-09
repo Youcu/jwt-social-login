@@ -2,6 +2,7 @@ package com.hooby.token.domain.user.dto;
 
 import com.hooby.token.domain.user.entity.Role;
 import com.hooby.token.domain.user.entity.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -14,12 +15,19 @@ public class UserDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "사용자 정보 응답 DTO")
     public static class UserResponse {
+        @Schema(description = "PK", example = "1")
         private Long id;
+        @Schema(description = "이메일", example = "user@email.com")
         private String email;
+        @Schema(description = "사용자 ID", example = "shinnosuke123")
         private String username;
+        @Schema(description = "사용자 성별", example = "USER | MANAGER | ADMIN")
         private Role role;
+        @Schema(description = "사용자 이름", example = "신짱구")
         private String name;
+        @Schema(description = "프로필 UUID", example = "b4120a7b-0771-4331-b8bb-f100cdb13419")
         private String profileImage;
 
         public static UserResponse from(User user) {
@@ -38,14 +46,17 @@ public class UserDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "사용자 업데이트 요청 DTO")
     public static class UserUpdateRequest {
         @Email(message = "올바른 이메일 형식이 아닙니다.") // Validation Dependency 필요
+        @Schema(description = "이메일", example = "user@email.com")
         private String email;
-
         @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z]).{8,}", message = "비밀번호 조건에 충족되지 않습니다.")
+        @Schema(description = "사용자 비밀번호", example = "password content")
         private String password;
-
+        @Schema(description = "사용자 이름", example = "신짱구")
         private String name;
+        @Schema(description = "프로필 UUID", example = "b4120a7b-0771-4331-b8bb-f100cdb13419")
         private String profileImage;
     }
 }

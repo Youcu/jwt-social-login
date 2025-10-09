@@ -25,7 +25,7 @@ public class User extends TimeBaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column // OAuth2의 경우라면 password가 nullable -> 그리고 이걸 RequestDTO에서 NotBlank로 설정하면 Login API 우회 불가
     private String password;
 
     @Column(nullable = false, unique = true)
