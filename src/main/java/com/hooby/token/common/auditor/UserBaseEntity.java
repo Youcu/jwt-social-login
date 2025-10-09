@@ -1,10 +1,7 @@
 package com.hooby.token.common.auditor;
 
 import com.hooby.token.domain.user.entity.User;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,16 +24,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserBaseEntity {
     @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime lastModifiedAt;
 
     @CreatedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User createdBy;
+    @Column(updatable = false)
+    private Long createdBy;
 
     @LastModifiedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User lastModifiedBy;
+    private Long lastModifiedBy;
 }

@@ -1,10 +1,6 @@
 package com.hooby.token.system.auditor;
 
-import com.hooby.token.domain.user.repository.UserRepository;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.system.security.model.UserPrincipal;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
@@ -14,13 +10,11 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
-public class AuditorAwareImpl implements AuditorAware<User> {
-    private final UserRepository userRepository;
+public class AuditorAwareImpl implements AuditorAware<Long> {
 
     @Override
     @NonNull
-    public Optional<User> getCurrentAuditor() {
+    public Optional<Long> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -37,6 +31,6 @@ public class AuditorAwareImpl implements AuditorAware<User> {
             return Optional.empty();
         }
 
-        return userRepository.findById(userId);
+        return Optional.of(userPrincipal.getUserId());
     }
 }
