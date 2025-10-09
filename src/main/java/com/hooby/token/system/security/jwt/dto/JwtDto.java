@@ -58,10 +58,8 @@ public class JwtDto {
     }
 
     @Builder @AllArgsConstructor @NoArgsConstructor @Getter
-    public static class RefreshToken {
-        private String tokenUuid; // Random
-        private LocalDateTime issuedAt;
-        private LocalDateTime expiredAt;
+    public static class ReissueRequest {
+        private String refreshToken;
     }
 }
 

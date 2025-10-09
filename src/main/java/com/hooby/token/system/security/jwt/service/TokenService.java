@@ -86,9 +86,8 @@ public class TokenService {
      * @see TokenService#resolveUser(String)
      * @see JwtTokenValidator
      */
-    public JwtDto.TokenInfo rotateByRtk(HttpServletRequest request) {
-        String refreshToken = jwtTokenResolver.parseTokenFromRequest(request)
-                .orElseThrow(() -> new BaseException(ErrorCode.JWT_MISSING));
+    public JwtDto.TokenInfo rotateByRtk(JwtDto.ReissueRequest reissueRequest) {
+        String refreshToken = reissueRequest.getRefreshToken();
 
         var payload = jwtTokenResolver.resolveToken(refreshToken);
         jwtTokenValidator.validateRtk(payload);
