@@ -17,13 +17,23 @@ public class JwtTokenResolver {
 
     public Optional<String> parseTokenFromRequest(HttpServletRequest request) {
         try {
+            // Authorization Header 우선 (기존)
             String header = request.getHeader("Authorization");
-            if (header == null || !header.startsWith("Bearer ")) return Optional.empty();
+            if (header != null && header.startsWith("Bearer ")) { return Optional.of(header.substring(7)); }
 
-            return Optional.of(header.substring(7));
+            // Cookie AT
+            if (request.getCookies() != null) {
+                for (var c : request.getCookies()) {
+                    if ("AT".equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
+                        return Optional.of(c.getValue());
+                    }
+                }
+            }
+            return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
         }
+
     }
 
     public JwtDto.TokenPayload resolveToken(String token) {
