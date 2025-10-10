@@ -46,18 +46,17 @@ public class User extends TimeBaseEntity {
 
     // @Version private Long version; -> JPA에서 자동 관리해주는 Optimistic Lock 인데 (단, 재시도 로직 등 AOP 고려), 추후 고려
 
-    /**
+    /*
      * Annotations -> @PrePersist, @PreUpdate: Jpa Entity Lifecycle event callback
      * entityManager.persist(user) 또는 entityManager.merge(user)가 호출되어 flush 되는 순간,
      * JPA가 내부적으로 이 메서드를 먼저 실행하고, 그 이후에 SQL을 생성해서 DB에 반영
      *
      * email toLowerCase: Why? 이메일은 표준적으로 대소문자 구별 X, But DB Unique 제약은 기본적으로 대소문자 구별
-     * */
+     */
     @PrePersist // INSERT 되기 전 실행 (새로운 User 저장 시)
     @PreUpdate  // UPDATE 되기 전 실행 (기존 User 수정 시)
     private void normalize() {
-        if (this.username != null) this.username = this.username.trim(); // "hades " 같은 공백 포함 문자열 방지
-        if (this.nickname != null) this.nickname = this.nickname.trim();
+        if (this.nickname != null) this.nickname = this.nickname.trim(); // "hades " 같은 공백 포함 문자열 방지
         if (this.email != null) this.email = this.email.trim().toLowerCase(Locale.ROOT);
         if (this.profileImage != null) this.profileImage = this.profileImage.trim();
     }
