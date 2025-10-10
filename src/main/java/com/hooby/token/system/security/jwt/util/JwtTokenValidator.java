@@ -26,7 +26,7 @@ public class JwtTokenValidator {
         String submittedUuid = payload.getRefreshUuid();
         String allowedRtk = tokenRedisRepository.getAllowedRtk(payload.getSubject());
 
-        if (!allowedRtk.equals(payload.getRefreshUuid())) throw new JwtInvalidException();
+        if (allowedRtk == null || !allowedRtk.equals(submittedUuid)) throw new JwtInvalidException();
         if (tokenRedisRepository.isRtkBlacklisted(submittedUuid)) throw new JwtInvalidException();
     }
 
