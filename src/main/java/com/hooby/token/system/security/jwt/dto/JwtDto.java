@@ -1,6 +1,6 @@
 package com.hooby.token.system.security.jwt.dto;
 
-import com.hooby.token.domain.user.entity.Role;
+import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.system.security.jwt.entity.TokenType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

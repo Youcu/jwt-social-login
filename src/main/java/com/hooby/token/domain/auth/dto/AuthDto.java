@@ -3,7 +3,7 @@ package com.hooby.token.domain.auth.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hooby.token.domain.user.dto.UserDto;
-import com.hooby.token.domain.user.entity.Role;
+import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import io.swagger.v3.oas.annotations.media.Schema;

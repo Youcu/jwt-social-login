@@ -2,6 +2,8 @@ package com.hooby.token.domain.user.entity;
 
 import com.hooby.token.common.auditor.TimeBaseEntity;
 import com.hooby.token.domain.user.dto.UserDto;
+import com.hooby.token.domain.user.entity.enums.Role;
+import com.hooby.token.domain.user.entity.enums.UserType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +43,11 @@ public class User extends TimeBaseEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Role role = Role.USER;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private UserType userType = UserType.COMMON;
 
     private String profileImage;
 

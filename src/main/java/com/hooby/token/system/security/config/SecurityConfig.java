@@ -1,5 +1,7 @@
 package com.hooby.token.system.security.config;
 
+import com.hooby.token.domain.oauth2.handler.CustomSuccessHandler;
+import com.hooby.token.domain.oauth2.service.CustomOAuth2UserService;
 import com.hooby.token.system.security.jwt.config.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +30,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    // private final CustomOAuth2UserService customOAuth2UserService;
-    // private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
 
@@ -42,11 +44,10 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                // .oauth2Login((oauth2) -> oauth2
-                //         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                //                 .userService(customOAuth2UserService))
-                //         .successHandler(customSuccessHandler))
-                .oauth2Login(withDefaults()) // ✅ 이렇게만 지정해두면 로그인 페이지 활성화됨
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)) // ✅ 내부 Custom 서비스를 사용하려면 등록해야 함
+                        .successHandler(customSuccessHandler))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null)).permitAll()
                         .anyRequest().authenticated()

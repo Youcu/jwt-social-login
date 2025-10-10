@@ -1,6 +1,6 @@
 package com.hooby.token.system.security.model;
 
-import com.hooby.token.domain.user.entity.Role;
+import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.entity.User;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -107,6 +108,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("[INTERNAL ERROR] {}", e.getMessage(), e);
         return createErrorResponse(ErrorCode.GLOBAL_INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(OAuth2AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleOAuth2(OAuth2AuthenticationException e) {
+        return createErrorResponse(ErrorCode.OAUTH_BAD_REQUEST);
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(HttpStatus status, String error, String message) {

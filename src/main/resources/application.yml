@@ -47,9 +47,9 @@ spring:
             client-authentication-method: post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
             scope:
-              - nickname
               - email
               - profile_image
+              - nickname
             provider: naver
 
           kakao:
@@ -60,9 +60,9 @@ spring:
             client-authentication-method: post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
             scope:
-              - profile_nickname
-              - profile_image
               - account_email
+              - profile_image
+              - profile_nickname
             provider: kakao
 
         provider:

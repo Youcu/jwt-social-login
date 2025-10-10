@@ -1,6 +1,6 @@
 package com.hooby.token.domain.user.dto;
 
-import com.hooby.token.domain.user.entity.Role;
+import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

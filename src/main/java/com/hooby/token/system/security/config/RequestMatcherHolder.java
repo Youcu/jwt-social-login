@@ -1,6 +1,6 @@
 package com.hooby.token.system.security.config;
 
-import com.hooby.token.domain.user.entity.Role;
+import com.hooby.token.domain.user.entity.enums.Role;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpMethod;
