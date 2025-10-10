@@ -25,8 +25,8 @@ public class UserDto {
         private String username;
         @Schema(description = "사용자 성별", example = "USER | MANAGER | ADMIN")
         private Role role;
-        @Schema(description = "사용자 이름", example = "신짱구")
-        private String name;
+        @Schema(description = "사용자 닉네임", example = "hades")
+        private String nickname;
         @Schema(description = "프로필 UUID", example = "b4120a7b-0771-4331-b8bb-f100cdb13419")
         private String profileImage;
 
@@ -36,7 +36,7 @@ public class UserDto {
                     .email(user.getEmail())
                     .username(user.getUsername())
                     .role(user.getRole())
-                    .name(user.getName())
+                    .nickname(user.getNickname())
                     .profileImage(user.getProfileImage())
                     .build();
         }
@@ -54,8 +54,9 @@ public class UserDto {
         @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z]).{8,}", message = "비밀번호 조건에 충족되지 않습니다.")
         @Schema(description = "사용자 비밀번호", example = "password content")
         private String password;
-        @Schema(description = "사용자 이름", example = "신짱구")
-        private String name;
+        @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z0-9-_]{2,10}$", message = "닉네임 조건에 충족되지 않습니다.")
+        @Schema(description = "사용자 닉네임", example = "hades")
+        private String nickname;
         @Schema(description = "프로필 UUID", example = "b4120a7b-0771-4331-b8bb-f100cdb13419")
         private String profileImage;
     }
