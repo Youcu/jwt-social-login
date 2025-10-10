@@ -4,6 +4,7 @@ import com.hooby.token.system.exception.dto.ErrorResponse;
 import com.hooby.token.system.exception.model.BaseException;
 import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.jwt.exception.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
-        return createErrorResponse(e.getErrorCode());
+        return createErrorResponse(e.getErrorCode(), e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -31,10 +32,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         String errorMessage = e.getMessage();
-
-        if (errorMessage.contains("users_email_unique")) {
+        if (errorMessage != null && errorMessage.contains("users_email_unique")) {
             return createErrorResponse(ErrorCode.USER_EMAIL_ALREADY_EXISTS);
-        } else if (errorMessage.contains("users_username_unique")) {
+        } else if (errorMessage != null && errorMessage.contains("users_username_unique")) {
             return createErrorResponse(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
         } else {
             return createErrorResponse(ErrorCode.GLOBAL_ALREADY_RESOURCE);
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageConversionException.class)
-    public ResponseEntity<ErrorResponse> handleBaseException(){
+    public ResponseEntity<ErrorResponse> handleHttpMessageConversionException(){
         return createErrorResponse(ErrorCode.GLOBAL_BAD_REQUEST);
     }
 
@@ -84,10 +84,19 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.BAD_REQUEST, "GLOBAL_INVALID_PARAMETER", message);
     }
 
+    // ★ @RequestParam/@PathVariable 검증 실패 처리
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream()
+                .map(v -> v.getMessage())
+                .findFirst()
+                .orElse("요청 파라미터가 올바르지 않습니다.");
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "GLOBAL_INVALID_PARAMETER", msg);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
-
         var messages = e.getBindingResult().getFieldErrors().stream()
                 .map(err -> err.getField() + " : " + err.getDefaultMessage())
                 .toList();
@@ -101,12 +110,12 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(HttpStatus status, String error, String message) {
-        return ResponseEntity.status(status.value())
-                .body(ErrorResponse.of(status, error, message));
+        return ResponseEntity.status(status).body(ErrorResponse.of(status, error, message));
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(ErrorCode errorCode) {
-        return ResponseEntity.status(errorCode.getStatus()).body(ErrorResponse.of(errorCode, errorCode.getMessage()));
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode, errorCode.getMessage()));
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(ErrorCode errorCode, String customMessage) {
@@ -114,4 +123,3 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(errorCode, customMessage));
     }
 }
-

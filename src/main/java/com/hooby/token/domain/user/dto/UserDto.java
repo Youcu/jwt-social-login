@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserDto {
     @Data
@@ -59,5 +60,9 @@ public class UserDto {
         private String nickname;
         @Schema(description = "프로필 UUID", example = "b4120a7b-0771-4331-b8bb-f100cdb13419")
         private String profileImage;
+
+        public void encodePassword(PasswordEncoder passwordEncoder) {
+            this.password = passwordEncoder.encode(this.password);
+        }
     }
 }

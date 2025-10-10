@@ -11,17 +11,18 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserLoadService {
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public Optional<UserPrincipal> loadUserById(Long userId) {
         return userRepository.findById(userId)
                 .map(UserPrincipal::from);
     }
 
+    @Transactional(readOnly = true)
     public Optional<UserPrincipal> loadUserByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        return user != null ? Optional.of(UserPrincipal.from(user)) : Optional.empty();
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.map(UserPrincipal::from);
     }
 }

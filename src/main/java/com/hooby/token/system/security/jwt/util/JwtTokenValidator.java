@@ -10,9 +10,11 @@ import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtTokenValidator {
     private final TokenRedisRepository tokenRedisRepository;
@@ -20,9 +22,9 @@ public class JwtTokenValidator {
 
     public void validateRtk(JwtDto.TokenPayload payload) {
         if (payload.getTokenType() != TokenType.REFRESH) throw new JwtInvalidException();
-    }
+        if (payload.getSubject() == null || payload.getSubject().isEmpty()) throw new JwtInvalidException();
+        if (payload.getRefreshUuid() == null || payload.getRefreshUuid().isEmpty()) throw new JwtInvalidException();
 
-    public void validateSubmittedRtk(JwtDto.TokenPayload payload) {
         String submittedUuid = payload.getRefreshUuid();
         String allowedRtk = tokenRedisRepository.getAllowedRtk(payload.getSubject());
 

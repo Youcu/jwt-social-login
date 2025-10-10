@@ -23,10 +23,13 @@ public class RequestMatcherHolder {
 
     private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
             // auth
+            new RequestInfo(HttpMethod.POST, "/api/v1/auth/register", null),
             new RequestInfo(HttpMethod.POST, "/api/v1/auth/login", null),
+            new RequestInfo(HttpMethod.GET, "/api/v1/auth/email-exist", null),
+            new RequestInfo(HttpMethod.GET, "/api/v1/auth/nickname-exist", null),
+            new RequestInfo(HttpMethod.GET, "/api/v1/auth/username-exist", null),
 
             // user
-            new RequestInfo(HttpMethod.POST, "/api/v1/users/signup", null),
 
             // test
             new RequestInfo(HttpMethod.GET, "/test", null),

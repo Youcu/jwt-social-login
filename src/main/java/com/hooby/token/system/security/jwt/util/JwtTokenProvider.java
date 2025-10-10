@@ -5,6 +5,7 @@ import com.hooby.token.system.security.jwt.entity.TokenType;
 import com.hooby.token.system.security.model.UserPrincipal;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.SecretKey;
@@ -13,6 +14,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private final SecretKey secretKey;
@@ -25,7 +27,7 @@ public class JwtTokenProvider {
 
     public JwtDto.TokenData createRefreshToken(UserPrincipal userPrincipal, String refreshUuid) {
         String jti = UUID.randomUUID().toString();
-        LocalDateTime exp = LocalDateTime.now().plusMinutes(refreshTokenExpirationWeeks);
+        LocalDateTime exp = LocalDateTime.now().plusWeeks(refreshTokenExpirationWeeks);
 
         String token = Jwts.builder()
                 .subject(getSubject(userPrincipal))

@@ -1,9 +1,6 @@
 package com.hooby.token.system.security.jwt.service;
 
-import com.hooby.token.system.exception.model.BaseException;
-import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
-import com.hooby.token.system.security.jwt.entity.TokenType;
 import com.hooby.token.system.security.jwt.exception.JwtInvalidException;
 import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
@@ -11,8 +8,8 @@ import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
 import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.UserLoadService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -28,6 +25,7 @@ import java.time.LocalDateTime;
  * @see UserLoadService
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
@@ -62,7 +60,7 @@ public class TokenService {
                 : userPrincipal.getUsername();
 
         Duration rtTtl = Duration.between(LocalDateTime.now(), tokenPair.getRefreshToken().getExpiredAt());
-        tokenRedisRepository.allowRtk(subject, extractRefreshUuid(tokenPair), rtTtl); // TODO : 추후 구현
+        tokenRedisRepository.allowRtk(subject, extractRefreshUuid(tokenPair), rtTtl);
         return JwtDto.TokenInfo.of(tokenPair);
     }
 
@@ -80,23 +78,22 @@ public class TokenService {
      * <h4>Details</h4><ul>
      * <li>1-1. 비교 검증: Redis RTK의 null 여부, 제공받은 RTK와 일치 여부, 블랙리스트 여부</li></ul><br>
      *
-     * @param request 클라이언트로부터 전달받은 Refresh Token 문자열을 포함한 Authorization Header
+     * @param reissueRequest 클라이언트로부터 전달받은 Refresh Token 문자열을 포함한 Authorization Header
      * @return 새로 발급된 Access Token과 Refresh Token 정보를 담은 DTO
      * @throws JwtInvalidException 전달된 토큰이 유효하지 않거나, 허용된 Refresh Token이 아닐 경우 발생
      * @see TokenService#resolveUser(String)
      * @see JwtTokenValidator
      */
-    public JwtDto.TokenInfo rotateByRtk(JwtDto.ReissueRequest reissueRequest) {
+    public JwtDto.TokenInfo rotateByRtkWithValidation(JwtDto.ReissueRequest reissueRequest) {
         String refreshToken = reissueRequest.getRefreshToken();
 
         var payload = jwtTokenResolver.resolveToken(refreshToken);
+
+        // Submitted Refresh Token Validation
         jwtTokenValidator.validateRtk(payload);
 
         String subject = payload.getSubject();
         String submittedUuid = payload.getRefreshUuid();
-
-        // AllowedRtk 와 SubmittedRtk Validation
-        jwtTokenValidator.validateSubmittedRtk(payload);
 
         UserPrincipal userPrincipal = resolveUser(subject);
         JwtDto.TokenPair tokenPair = jwtTokenProvider.createTokenPair(userPrincipal);
@@ -125,9 +122,9 @@ public class TokenService {
      * @param accessToken 로그아웃을 요청한 사용자의 Access Token 문자열
      * @throws JwtInvalidException 전달된 토큰이 유효한 Access Token이 아닐 경우 발생
      */
-    public void logoutByAtk(String accessToken) {
+    public void logoutByAtkWithValidation(String accessToken) {
         var payload = jwtTokenResolver.resolveToken(accessToken);
-        if (payload.getTokenType() != TokenType.ACCESS) throw new JwtInvalidException();
+        jwtTokenValidator.validateAtk(payload);
 
         Duration atTtl = Duration.between(LocalDateTime.now(), payload.getExpiredAt());
         tokenRedisRepository.setBlacklistAtkJti(payload.getJti(), atTtl);

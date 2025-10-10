@@ -2,7 +2,6 @@ package com.hooby.token.system.security.model;
 
 import com.hooby.token.domain.user.entity.Role;
 import com.hooby.token.domain.user.entity.User;
-import com.hooby.token.system.security.jwt.dto.JwtDto;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

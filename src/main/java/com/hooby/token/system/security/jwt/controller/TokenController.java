@@ -1,8 +1,8 @@
-package com.hooby.token.system.security.jwt;
+package com.hooby.token.system.security.jwt.controller;
 
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Token", description = "토큰 처리 API")
 public class TokenController {
     private final TokenService tokenService;
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtDto.TokenInfo> refresh(@RequestBody @Valid JwtDto.ReissueRequest reissueRequest) {
-        return ResponseEntity.ok(tokenService.rotateByRtk(reissueRequest));
+        return ResponseEntity.ok(tokenService.rotateByRtkWithValidation(reissueRequest));
     }
 }
