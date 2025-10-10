@@ -1,5 +1,6 @@
 package com.hooby.token.system.security.model;
 
+import com.hooby.token.domain.oauth2.entity.CustomOAuth2User;
 import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.entity.User;
 import lombok.*;
@@ -36,12 +37,11 @@ public class UserPrincipal implements UserDetails, Serializable {
                 .build();
     }
 
-    public static UserPrincipal toOAuth2(Long userId, String username, Role role) {
+    public static UserPrincipal toOAuth2(CustomOAuth2User customOAuth2User) {
         return UserPrincipal.builder()
-                .userId(userId)
-                .username(username)
-                .password(null)
-                .role(Objects.requireNonNull(role))
+                .userId(customOAuth2User.getUserId())
+                .username(customOAuth2User.getUsername())
+                .role(Objects.requireNonNull(customOAuth2User.getRole()))
                 .build();
     }
 
