@@ -21,6 +21,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -44,19 +46,20 @@ public class SecurityConfig {
                 //         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                 //                 .userService(customOAuth2UserService))
                 //         .successHandler(customSuccessHandler))
+                .oauth2Login(withDefaults()) // ✅ 이렇게만 지정해두면 로그인 페이지 활성화됨
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null)).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint((req, res, exx) -> {
-                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            res.setContentType("application/json;charset=UTF-8");
-                            String body = """
-                                {"status":401,"error":"JWT AUTHENTICATION FAILED","message":"인증이 필요합니다."}
-                            """;
-                            res.getWriter().write(body);
-                        })
+                        // .authenticationEntryPoint((req, res, exx) -> { // ✅ Custom Entry Point 때문에 OAuth2 페이지 접근 막힘
+                        //     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        //     res.setContentType("application/json;charset=UTF-8");
+                        //     String body = """
+                        //         {"status":401,"error":"JWT AUTHENTICATION FAILED","message":"인증이 필요합니다."}
+                        //     """;
+                        //     res.getWriter().write(body);
+                        // })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             log.error("⚠️ Access Denied - 403 Forbidden. RequestURI: {}", request.getRequestURI());
                             response.sendError(HttpServletResponse.SC_FORBIDDEN);
