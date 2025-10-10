@@ -1,5 +1,6 @@
 package com.hooby.token.system.security.jwt.config;
 
+import com.hooby.token.system.security.config.RequestMatcherHolder;
 import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
@@ -67,8 +68,10 @@ public class JwtConfig {
     public JwtAuthenticationFilter JwtAuthenticationFilter(
             JwtTokenResolver jwtTokenResolver,
             UserLoadService userLoadService,
-            JwtTokenValidator jwtTokenValidator) {
-        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator);
+            JwtTokenValidator jwtTokenValidator,
+            RequestMatcherHolder requestMatcherHolder
+    ) {
+        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator, requestMatcherHolder);
     }
 }
 

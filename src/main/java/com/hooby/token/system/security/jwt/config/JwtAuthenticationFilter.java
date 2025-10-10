@@ -1,9 +1,9 @@
 package com.hooby.token.system.security.jwt.config;
 
+import com.hooby.token.system.security.config.RequestMatcherHolder;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.exception.JwtInvalidException;
 import com.hooby.token.system.security.jwt.exception.JwtMissingException;
-import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
 import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
 import com.hooby.token.system.security.model.UserPrincipal;
@@ -30,6 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenResolver jwtTokenResolver;
     private final UserLoadService userLoadService;
     private final JwtTokenValidator jwtTokenValidator;
+    private final RequestMatcherHolder requestMatcherHolder;
+
+
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        return requestMatcherHolder.getRequestMatchersByMinRole(null).matches(request);
+    }
+
 
     @Override
     protected void doFilterInternal(
@@ -40,10 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Parse Token From Request
-            String token = jwtTokenResolver.parseTokenFromRequest(request).orElseThrow(JwtMissingException::new);
+            var nullableToken = jwtTokenResolver.parseTokenFromRequest(request);
+            if (nullableToken.isEmpty()) { filterChain.doFilter(request, response); return; }
 
             // Extract JWT Payload with Validation (Token 자체의 유효성 검증)
-            JwtDto.TokenPayload payload = jwtTokenResolver.resolveToken(token);
+            JwtDto.TokenPayload payload = jwtTokenResolver.resolveToken(nullableToken.get());
 
             // ATK Validation: isAtk? isValidJti? isBlacklist? (사용 목적에 따른 유효성 검증)
             jwtTokenValidator.validateAtk(payload);
