@@ -20,7 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/retrieve")
+    @GetMapping("/me")
     @Operation(summary = "내 정보 조회", description = "현재 로그인된 사용자의 정보를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "내 정보 조회 성공")
     public UserDto.UserResponse retrieve(
@@ -29,7 +29,7 @@ public class UserController {
         return userService.retrieve(userPrincipal);
     }
 
-    @PatchMapping("/retrieve")
+    @PatchMapping("/me")
     @Operation(summary = "내 정보 수정", description = "현재 로그인된 사용자의 정보를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "내 정보 수정 성공")
     public UserDto.UserResponse update(
