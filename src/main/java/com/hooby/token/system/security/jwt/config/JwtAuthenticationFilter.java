@@ -29,7 +29,6 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenResolver jwtTokenResolver;
     private final UserLoadService userLoadService;
-    private final TokenRedisRepository tokenRedisRepository;
     private final JwtTokenValidator jwtTokenValidator;
 
     @Override

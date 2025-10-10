@@ -67,9 +67,8 @@ public class JwtConfig {
     public JwtAuthenticationFilter JwtAuthenticationFilter(
             JwtTokenResolver jwtTokenResolver,
             UserLoadService userLoadService,
-            TokenRedisRepository tokenRedisRepository,
             JwtTokenValidator jwtTokenValidator) {
-        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, tokenRedisRepository, jwtTokenValidator);
+        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator);
     }
 }
 
