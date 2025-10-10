@@ -1,4 +1,4 @@
-package com.hooby.token.system.auditor;
+package com.hooby.token.common.auditor;
 
 import lombok.NonNull;
 import com.hooby.token.system.security.model.UserPrincipal;
