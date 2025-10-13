@@ -6,6 +6,7 @@ import com.hooby.token.system.security.jwt.config.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,8 +24,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -35,6 +34,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
 
+    @Value("${app.front-redirect-uri}")
+    private String frontRedirectUri;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,10 +45,11 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)) // ✅ 내부 Custom 서비스를 사용하려면 등록해야 함
-                        .successHandler(customSuccessHandler))
+                .oauth2Login(oauth2 -> {
+                    oauth2.userInfoEndpoint(user -> user.userService(customOAuth2UserService));
+                    oauth2.successHandler(customSuccessHandler);
+                    // (선택) 실패 핸들러도 필요하면 여기서 설정
+                })
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null)).permitAll()
                         .anyRequest().authenticated()
@@ -72,7 +74,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); // 모든 출처 허용
+        configuration.setAllowedOrigins(List.of(frontRedirectUri));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

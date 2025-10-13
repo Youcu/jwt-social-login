@@ -21,7 +21,6 @@ public class BaseException extends RuntimeException {
 
     public BaseException(ErrorCode errorCode, String message) {
         super(message); // Custom Message
-        log.info("🟢🟢🟢🟢🟢🟢🟢🟢{}", message);
         this.errorCode = errorCode;
     }
 

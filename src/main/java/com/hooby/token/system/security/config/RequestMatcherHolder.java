@@ -40,7 +40,8 @@ public class RequestMatcherHolder {
             new RequestInfo(HttpMethod.GET,  "/resources/**", null),
             new RequestInfo(HttpMethod.GET,  "/error", null),
             new RequestInfo(HttpMethod.GET,  "/swagger-ui/**", null),
-            new RequestInfo(HttpMethod.GET,  "/v3/api-docs/**", null)
+            new RequestInfo(HttpMethod.GET,  "/v3/api-docs/**", null),
+            new RequestInfo(HttpMethod.GET,  "/", null)
     );
 
     private final ConcurrentHashMap<String, RequestMatcher> reqMatcherCacheMap = new ConcurrentHashMap<>();

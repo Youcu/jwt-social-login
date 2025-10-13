@@ -44,7 +44,7 @@ spring:
             client-secret: ${OAUTH_NAVER_CLIENT_SECRET}
             client-name: Naver
             authorization-grant-type: authorization_code
-            client-authentication-method: post
+            client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
             scope:
               - email
@@ -57,7 +57,7 @@ spring:
             client-secret: ${OAUTH_KAKAO_CLIENT_SECRET}
             client-name: Kakao
             authorization-grant-type: authorization_code
-            client-authentication-method: post
+            client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
             scope:
               - account_email
@@ -87,8 +87,8 @@ jwt:
   access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:30} # in Minutes, default is 30 minutes
   refresh-token-expiration-weeks: ${JWT_REFRESH_TOKEN_EXPIRATION_WEEKS:2} # in Weeks, default is 2 weeks
 
-cache:
-  specs:
-    refresh-token-uuid:
-      expiration-week: ${JWT_REFRESH_TOKEN_EXPIRATION_WEEKS:2}
-      maximum-size: 10000
+app:
+  cookie:
+    secure: false
+  front-redirect-uri: "http://localhost:3000/"
+

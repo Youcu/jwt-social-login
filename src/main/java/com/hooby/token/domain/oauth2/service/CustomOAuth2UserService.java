@@ -49,6 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
         // 불러온 회원 정보로 Response DTO 업데이트 후 내보냄 (PK 가 있어야 Audit 이든 UserPrincipal 이든 뭐든 될 것이기 때문)
+
         return new CustomOAuth2User(OAuth2UserDto.from(user));
     }
 
