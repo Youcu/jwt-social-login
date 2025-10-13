@@ -43,11 +43,11 @@ public class UserService {
     }
 
     private void validateDuplication(UserDto.UserUpdateRequest request, User foundUser) {
-        if (request.getNickname() != null &&
-                !foundUser.getNickname().equals(request.getNickname()) &&
-                userRepository.existsByNickname(request.getNickname())) {
-            throw new BaseException(ErrorCode.USER_NICKNAME_ALREADY_EXISTS);
-        }
+        // if (request.getNickname() != null &&
+        //         !foundUser.getNickname().equals(request.getNickname()) &&
+        //         userRepository.existsByNickname(request.getNickname())) {
+        //     throw new BaseException(ErrorCode.USER_NICKNAME_ALREADY_EXISTS);
+        // }
 
         if (request.getEmail() != null &&
                 !foundUser.getEmail().equals(request.getEmail()) &&

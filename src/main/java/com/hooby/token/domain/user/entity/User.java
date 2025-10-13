@@ -20,7 +20,7 @@ import java.util.Locale;
 @Getter
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "USER_USERNAME", columnNames = "username"),
-        @UniqueConstraint(name = "USER_NICKNAME", columnNames = "nickname"),
+        // @UniqueConstraint(name = "USER_NICKNAME", columnNames = "nickname"),
         @UniqueConstraint(name = "USER_EMAIL", columnNames = "email")
 })
 public class User extends TimeBaseEntity {
