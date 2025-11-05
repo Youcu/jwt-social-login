@@ -33,9 +33,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         String errorMessage = e.getMessage();
-        if (errorMessage != null && errorMessage.contains("users_email_unique")) {
+        // 꼭 Entity Unique Constraints name 과 일치 하는지, 혹은 따로 명시 하지는 않았는 지 반드시 확인할 것
+
+        log.info("🔴 DataIntegrityViolationException: {}", errorMessage);
+        if (errorMessage != null && errorMessage.contains("USER_EMAIL")) {
             return createErrorResponse(ErrorCode.USER_EMAIL_ALREADY_EXISTS);
-        } else if (errorMessage != null && errorMessage.contains("users_username_unique")) {
+        } else if (errorMessage != null && errorMessage.contains("USER_USERNAME")) {
             return createErrorResponse(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
         } else {
             return createErrorResponse(ErrorCode.GLOBAL_ALREADY_RESOURCE);
