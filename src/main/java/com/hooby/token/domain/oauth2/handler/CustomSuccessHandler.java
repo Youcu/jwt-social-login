@@ -42,6 +42,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof CustomOAuth2User oauth2)) {
+            log.info("✅ CustomSuccessHandler principal not instance of CustomOAuth2User: {}", principal.getClass());
             getRedirectStrategy().sendRedirect(request, response, "/"); // fallback: 기본 유저 처리 or 에러
             return;
         }

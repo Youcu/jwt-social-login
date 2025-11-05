@@ -37,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // Response 할 DTO
         final OAuth2UserDto oAuth2UserDto = OAuth2UserDto.of(Role.USER, oAuth2Response);
 
-        // 기존 OAuth2 유저 있으면 사용, 없으면 생성 -> 기존 회원이거나 새로 등록왼 회원
+        // 기존 OAuth2 유저 있으면 사용, 없으면 생성 -> 기존 회원이거나 새로 등록된 회원
         User user = userRepository.findByUsername(oAuth2UserDto.getUsername())
                 .orElseGet(() -> {
                     try { // 동시성 이슈 대응

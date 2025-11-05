@@ -37,7 +37,7 @@ spring:
             scope:
               - email
               - profile
-              - openid
+#              - openid
 
           naver:
             client-id: ${OAUTH_NAVER_CLIENT_ID}
