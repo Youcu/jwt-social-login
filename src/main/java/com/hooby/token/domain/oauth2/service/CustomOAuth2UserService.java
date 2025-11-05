@@ -5,6 +5,7 @@ import com.hooby.token.domain.oauth2.entity.CustomOAuth2User;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.repository.UserRepository;
+import com.hooby.token.system.security.util.HmacUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,13 +16,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
+    private final HmacUtil hmacUtil;
 
     @Transactional
     @Override
@@ -35,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = getOAuth2Response(userRequest, oAuth2User);
 
         // Response 할 DTO
-        final OAuth2UserDto oAuth2UserDto = OAuth2UserDto.of(Role.USER, oAuth2Response);
+        final OAuth2UserDto oAuth2UserDto = OAuth2UserDto.of(Role.USER, oAuth2Response, hmacUtil);
 
         // 기존 OAuth2 유저 있으면 사용, 없으면 생성 -> 기존 회원이거나 새로 등록된 회원
         User user = userRepository.findByUsername(oAuth2UserDto.getUsername())

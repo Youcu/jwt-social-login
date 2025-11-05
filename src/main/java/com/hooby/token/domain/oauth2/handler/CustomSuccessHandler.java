@@ -26,7 +26,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final TokenService tokenService;
 
     @Value("${app.cookie.secure:true}")
-    private boolean cookieSecure;
+    private boolean cookieSecureOnHttps;
 
     @Value("${app.front-redirect-uri}")
     private String frontRedirectUri;
@@ -73,7 +73,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // Spring 6: ResponseCookie 사용 권장 (SameSite 지원)
         var cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(cookieSecure)                // HTTPS 전제
+                .secure(cookieSecureOnHttps)                // HTTPS 전제
                 .sameSite("Lax")            // 크로스 도메인 (FE: http://localhost:3000)
                 .path(path)
                 .maxAge(Duration.between(LocalDateTime.now(), exp))
