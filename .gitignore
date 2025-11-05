@@ -44,3 +44,6 @@ out/
 
 ### Documentation ###
 javadoc/
+
+### trashs ###
+*.rdb
