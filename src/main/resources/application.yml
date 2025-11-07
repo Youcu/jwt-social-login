@@ -90,7 +90,8 @@ jwt:
 app:
   cookie:
     secure: false
-  front-redirect-uri: "http://localhost:3000/"
+  front-redirect-uri: "http://localhost:3000/oauth/callback"
+  front-base-url: "http://localhost:3000"
 
 hmac:
   secret: ${HMAC_SECRET_KEY} # at least 32 characters long

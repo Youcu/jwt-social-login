@@ -5,16 +5,18 @@ import com.hooby.token.domain.oauth2.entity.CustomOAuth2User;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.repository.UserRepository;
+import com.hooby.token.system.exception.model.ErrorCode;
+import com.hooby.token.system.exception.model.RestException;
 import com.hooby.token.system.security.util.HmacUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Slf4j
@@ -40,11 +42,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 기존 OAuth2 유저 있으면 사용, 없으면 생성 -> 기존 회원이거나 새로 등록된 회원
         User user = userRepository.findByUsername(oAuth2UserDto.getUsername())
                 .orElseGet(() -> {
-                    try { // 동시성 이슈 대응
-                        return userRepository.save(oAuth2UserDto.toUser());
-                    } catch (DataIntegrityViolationException e) { // 유니크 충돌 시 재조회로 수습
-                        return userRepository.findByUsername(oAuth2UserDto.getUsername()).orElseThrow(() -> e);
+                    if(userRepository.existsByEmail(oAuth2UserDto.getEmail())) {
+                        throw new OAuth2AuthenticationException(String.valueOf(ErrorCode.USER_EMAIL_ALREADY_EXISTS));
                     }
+
+                    return userRepository.save(oAuth2UserDto.toUser());
                 });
 
 

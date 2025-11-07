@@ -53,6 +53,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 2) TokenService로 토큰 페어 발급(+Redis 화이트리스트 등록)
         JwtDto.TokenInfo tokenInfo = tokenService.issueTokens(userPrincipal);
 
+        log.info("🟢 Issued Tokens - ATK: {}, RTK: {}", tokenInfo.getAccessToken(), tokenInfo.getRefreshToken());
+
         // 3) 보안 쿠키 설정
         addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
         addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());

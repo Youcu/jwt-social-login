@@ -34,8 +34,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
 
-    @Value("${app.front-redirect-uri}")
-    private String frontRedirectUri;
+    @Value("${app.front-base-url}")
+    private String frontBaseUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> {
+                    // oauth2.loginPage(frontBaseUrl + "/login"); // ✅ 기본 로그인 페이지 비활성화 + 프론트로 유도
                     oauth2.userInfoEndpoint(user -> user.userService(customOAuth2UserService));
                     oauth2.successHandler(customSuccessHandler);
                     // (선택) 실패 핸들러도 필요하면 여기서 설정
@@ -55,14 +56,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        // .authenticationEntryPoint((req, res, exx) -> { // ✅ Custom Entry Point 때문에 OAuth2 페이지 접근 막힘
-                        //     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        //     res.setContentType("application/json;charset=UTF-8");
-                        //     String body = """
-                        //         {"status":401,"error":"JWT AUTHENTICATION FAILED","message":"인증이 필요합니다."}
-                        //     """;
-                        //     res.getWriter().write(body);
-                        // })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             log.error("⚠️ Access Denied - 403 Forbidden. RequestURI: {}", request.getRequestURI());
                             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -74,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontRedirectUri));
+        configuration.setAllowedOrigins(List.of(frontBaseUrl));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
