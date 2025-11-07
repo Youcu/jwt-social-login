@@ -25,7 +25,6 @@ public class HmacUtil {
             mac.init(keySpec);
             byte[] raw = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
 
-            log.info("HMAC Success - Input: {}, HMAC: {}", input, Base64.getUrlEncoder().withoutPadding().encodeToString(raw));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
         } catch (Exception e) {
             throw new RuntimeException("HMAC 실패", e);
