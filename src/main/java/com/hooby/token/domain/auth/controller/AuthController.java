@@ -52,15 +52,6 @@ public class AuthController {
     }
 
     // NO AUTH
-    // @GetMapping("/nickname-exist")
-    // @Operation(summary = "닉네임 중복 확인", description = "입력된 닉네임의 사용 가능 여부를 확인합니다.")
-    // @ApiResponse(responseCode = "200", description = "닉네임 확인 성공")
-    // public AuthDto.ExistResponse checkNickname(@RequestParam("nickname") String nickname) {
-    //     QueryParamValidator.validateNickname(nickname);
-    //     return authService.checkNicknameExist(nickname);
-    // }
-
-    // NO AUTH
     @GetMapping("/username-exist")
     @Operation(summary = "사용자 아이디 중복 확인", description = "입력된 사용자 아이디의 사용 가능 여부를 확인합니다.")
     @ApiResponse(responseCode = "200", description = "사용자 아이디 확인 성공")
