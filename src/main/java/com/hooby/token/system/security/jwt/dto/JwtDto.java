@@ -71,5 +71,21 @@ public class JwtDto {
         @Schema(description = "재발행할 Refresh Token", example = "refreshTokenString")
         private String refreshToken;
     }
+
+    @Builder @AllArgsConstructor @NoArgsConstructor @Getter
+    @Schema(description = "토큰 만료시간 정보 발행 DTO")
+    public static class TokenExpiresInfo {
+        @Schema(description = "Access Token 만료 시간", example = "ISO DateTime")
+        private LocalDateTime accessTokenExpiresAt;
+        @Schema(description = "Refresh Token 만료 시간", example = "ISO DateTime")
+        private LocalDateTime refreshTokenExpiresAt;
+
+        public static TokenExpiresInfo of(JwtDto.TokenInfo tokenInfo) {
+            return TokenExpiresInfo.builder()
+                    .accessTokenExpiresAt(tokenInfo.getAccessTokenExpiresAt())
+                    .refreshTokenExpiresAt(tokenInfo.getRefreshTokenExpiresAt())
+                    .build();
+        }
+    }
 }
 

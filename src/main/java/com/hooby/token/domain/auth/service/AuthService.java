@@ -35,10 +35,18 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthDto.LoginResponse login(AuthDto.LoginRequest request) {
+    public AuthDto.LoginResponse login(AuthDto.LoginRequest request, HttpServletResponse response) {
         User validatedUser = getValidatedLoginUser(request, passwordEncoder);
         JwtDto.TokenInfo tokenInfo = tokenService.issueTokens(UserPrincipal.from(validatedUser));
-        return AuthDto.LoginResponse.of(UserDto.UserResponse.from(validatedUser), tokenInfo);
+
+        // Cookie Setup
+        cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
+        cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
+
+        return AuthDto.LoginResponse.of(
+            UserDto.UserResponse.from(validatedUser),
+            JwtDto.TokenExpiresInfo.of(tokenInfo)
+        );
     }
 
     @Transactional

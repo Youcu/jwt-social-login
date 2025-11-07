@@ -72,13 +72,13 @@ public class AuthDto {
         @Schema(description = "로그인한 사용자 정보", implementation = UserDto.UserResponse.class)
         private UserDto.UserResponse user;
 
-        @Schema(description = "발급된 토큰 정보", implementation = JwtDto.TokenInfo.class)
-        private JwtDto.TokenInfo token;
+        @Schema(description = "발급된 토큰 만료시간 정보", implementation = JwtDto.TokenInfo.class)
+        private JwtDto.TokenExpiresInfo tokenExpiresInfo;
 
-        public static LoginResponse of(UserDto.UserResponse user, JwtDto.TokenInfo token) {
+        public static LoginResponse of(UserDto.UserResponse user, JwtDto.TokenExpiresInfo tokenExpiresInfo) {
             return LoginResponse.builder()
                     .user(user)
-                    .token(token)
+                    .tokenExpiresInfo(tokenExpiresInfo)
                     .build();
         }
     }
