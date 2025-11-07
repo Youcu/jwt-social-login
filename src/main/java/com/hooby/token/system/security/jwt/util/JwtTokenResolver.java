@@ -6,6 +6,7 @@ import com.hooby.token.system.security.jwt.entity.TokenType;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,6 +15,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtTokenResolver {
     private final JwtTokenValidator jwtTokenValidator;
+
+    @Value("${app.cookie.cookie-atk}")
+    private String cookieAtkKey;
+
 
     public Optional<String> parseTokenFromRequest(HttpServletRequest request) {
         try {
@@ -24,7 +29,7 @@ public class JwtTokenResolver {
             // Cookie AT
             if (request.getCookies() != null) {
                 for (var c : request.getCookies()) {
-                    if ("AT".equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
+                    if (cookieAtkKey.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
                         return Optional.of(c.getValue());
                     }
                 }

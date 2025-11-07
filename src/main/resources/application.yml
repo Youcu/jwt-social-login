@@ -90,6 +90,8 @@ jwt:
 app:
   cookie:
     secure: false
+    cookie-atk: "ATK"
+    cookie-rtk: "RTK"
   front-redirect-uri: "http://localhost:3000/oauth/callback"
   front-base-url: "http://localhost:3000"
 
