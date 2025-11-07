@@ -62,6 +62,14 @@ public class CookieUtils {
         addCookie(res, cookieRtkKey, token, exp, cookieRtkApplyPath); // RTK는 회전 엔드포인트 전용
     }
 
+    public void clearAccessTokenCookie(HttpServletResponse res) {
+        clearCookie(res, cookieAtkKey, cookieAtkApplyPath);
+    }
+
+    public void clearRefreshTokenCookie(HttpServletResponse res) {
+        clearCookie(res, cookieRtkKey, cookieRtkApplyPath);
+    }
+
     // HttpServletRequest 에서 쿠키 value 읽기
     public String getCookieValue(HttpServletRequest req, String name) {
         var cookie = WebUtils.getCookie(req, name);

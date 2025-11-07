@@ -5,6 +5,7 @@ import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
 import com.hooby.token.system.security.jwt.util.JwtTokenValidator;
+import com.hooby.token.system.security.util.CookieUtils;
 import com.hooby.token.system.security.util.UserLoadService;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -59,8 +60,11 @@ public class JwtConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public JwtTokenResolver jwtTokenResolver(JwtTokenValidator jwtTokenValidator) {
-        return new JwtTokenResolver(jwtTokenValidator);
+    public JwtTokenResolver jwtTokenResolver(
+        JwtTokenValidator jwtTokenValidator,
+        CookieUtils cookieUtils
+    ) {
+        return new JwtTokenResolver(jwtTokenValidator, cookieUtils);
     }
 
     @Bean

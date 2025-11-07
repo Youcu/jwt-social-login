@@ -3,18 +3,22 @@ package com.hooby.token.system.security.jwt.util;
 import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.entity.TokenType;
+import com.hooby.token.system.security.util.CookieUtils;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtTokenResolver {
     private final JwtTokenValidator jwtTokenValidator;
+    private final CookieUtils cookieUtils;
 
     @Value("${app.cookie.cookie-atk}")
     private String cookieAtkKey;
@@ -22,18 +26,26 @@ public class JwtTokenResolver {
 
     public Optional<String> parseTokenFromRequest(HttpServletRequest request) {
         try {
-            // Authorization Header 우선 (기존)
+            // Authorization Header 우선 (Legacy)
             String header = request.getHeader("Authorization");
             if (header != null && header.startsWith("Bearer ")) { return Optional.of(header.substring(7)); }
 
-            // Cookie AT
-            if (request.getCookies() != null) {
-                for (var c : request.getCookies()) {
-                    if (cookieAtkKey.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
-                        return Optional.of(c.getValue());
-                    }
-                }
+            // Cookie AT (Legacy)
+            // if (request.getCookies() != null) {
+            //     for (var c : request.getCookies()) {
+            //         if (cookieAtkKey.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
+            //             return Optional.of(c.getValue());
+            //         }
+            //     }
+            // }
+
+            // Cookie Util 사용
+            String tokenFromCookie = cookieUtils.getCookieValue(request, cookieAtkKey);
+            if (tokenFromCookie != null && !tokenFromCookie.isBlank()) {
+                log.info("🟢 Cookie Token found in JwtTokenResolver: {}", tokenFromCookie);
+                return Optional.of(tokenFromCookie);
             }
+
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
