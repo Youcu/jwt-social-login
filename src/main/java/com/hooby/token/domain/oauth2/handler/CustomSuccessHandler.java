@@ -4,6 +4,7 @@ import com.hooby.token.domain.oauth2.entity.CustomOAuth2User;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
 import com.hooby.token.system.security.model.UserPrincipal;
+import com.hooby.token.system.security.util.CookieUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,18 +25,12 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
+    private final CookieUtils cookieUtils;
 
-    @Value("${app.cookie.secure:true}")
-    private boolean cookieSecureOnHttps;
-
-    @Value("${app.front-redirect-uri}")
-    private String frontRedirectUri;
-
-    @Value("${app.cookie.cookie-atk}")
-    private String cookieAtkKey;
-
-    @Value("${app.cookie.cookie-rtk}")
-    private String cookieRtkKey;
+    @Value("${app.cookie.secure:true}") private boolean cookieSecureOnHttps;
+    @Value("${app.front-redirect-uri}") private String frontRedirectUri;
+    @Value("${app.cookie.cookie-atk}") private String cookieAtkKey;
+    @Value("${app.cookie.cookie-rtk}") private String cookieRtkKey;
 
     @Override
     public void onAuthenticationSuccess(
@@ -62,31 +57,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         log.info("🟢 Issued Tokens - ATK: {}, RTK: {}", tokenInfo.getAccessToken(), tokenInfo.getRefreshToken());
 
         // 3) 보안 쿠키 설정
-        addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
-        addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
+        cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
+        cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
 
         // 4) FE로 리다이렉트 (토큰은 쿠키로 전달되므로 URL 노출 없음)
         getRedirectStrategy().sendRedirect(request, response, frontRedirectUri);
     }
-
-    private void addAccessTokenCookie(HttpServletResponse res, String token, LocalDateTime exp) {
-        addCookie(res, cookieAtkKey, token, exp, "/"); // 모든 API 요청에 자동으로 ATK 쿠키 설정
-    }
-
-    private void addRefreshTokenCookie(HttpServletResponse res, String token, LocalDateTime exp) {
-        addCookie(res, cookieRtkKey, token, exp, "/api/v1/auth/refresh"); // RTK는 회전 엔드포인트 전용
-    }
-
-    private void addCookie(HttpServletResponse res, String name, String value, LocalDateTime exp, String path) {
-        // Spring 6: ResponseCookie 사용 권장 (SameSite 지원)
-        var cookie = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(cookieSecureOnHttps)                // HTTPS 전제
-                .sameSite("Lax")            // 크로스 도메인 (FE: http://localhost:3000)
-                .path(path)
-                .maxAge(Duration.between(LocalDateTime.now(), exp))
-                .build();
-        res.addHeader("Set-Cookie", cookie.toString());
-    }
 }
-
