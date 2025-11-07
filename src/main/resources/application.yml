@@ -92,6 +92,10 @@ app:
     secure: false
     cookie-atk: "ATK"
     cookie-rtk: "RTK"
+    same-site: "Lax"
+    atk-apply-path: "/"
+    rtk-apply-path: "/api/v1/auth/refresh"
+
   front-redirect-uri: "http://localhost:3000/oauth/callback"
   front-base-url: "http://localhost:3000"
 
