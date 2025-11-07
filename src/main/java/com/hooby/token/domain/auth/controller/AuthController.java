@@ -10,20 +10,23 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth", description = "인증/인가 API")
 public class AuthController {
-    // NO AUTH
     private final AuthService authService;
+
+    // NO AUTH
     @PostMapping("/register")
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponse(responseCode = "200", description = "회원가입 성공")
@@ -66,8 +69,8 @@ public class AuthController {
         responseCode = "200", description = "로그아웃 성공",
         content = @Content(mediaType = "text/plain", examples = @ExampleObject(value = "Logout Successful"))
     )
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        authService.logout(request);
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request, response);
         return ResponseEntity.ok("Logout Successful");
     }
 }

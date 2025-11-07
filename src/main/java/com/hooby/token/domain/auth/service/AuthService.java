@@ -10,7 +10,9 @@ import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
 import com.hooby.token.system.security.jwt.util.JwtTokenResolver;
 import com.hooby.token.system.security.model.UserPrincipal;
+import com.hooby.token.system.security.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final CookieUtils cookieUtils;
 
     @Transactional
     public UserDto.UserResponse signUp(AuthDto.SignUpRequest request) {
@@ -39,10 +42,16 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // 1) 서버 측 토큰(ATK/RTK) 무효화 (예: Redis blacklist)
         String accessToken = jwtTokenResolver.parseTokenFromRequest(request)
                 .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
+
         tokenService.logoutByAtkWithValidation(accessToken);
+
+        // 2) 브라우저 쿠키 제거 (same name, same path, domain 등으로)
+        cookieUtils.clearAccessTokenCookie(response);
+        cookieUtils.clearRefreshTokenCookie(response);
     }
 
     @Transactional(readOnly = true)
