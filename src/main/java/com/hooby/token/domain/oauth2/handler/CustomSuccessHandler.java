@@ -64,11 +64,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private void addAccessTokenCookie(HttpServletResponse res, String token, LocalDateTime exp) {
-        addCookie(res, "AT", token, exp, "/"); // 보호 API 전역
+        addCookie(res, "ATK", token, exp, "/"); // 보호 API 전역
     }
 
     private void addRefreshTokenCookie(HttpServletResponse res, String token, LocalDateTime exp) {
-        addCookie(res, "RT", token, exp, "/api/v1/auth/refresh"); // RTK는 회전 엔드포인트 전용
+        addCookie(res, "RTK", token, exp, "/api/v1/auth/refresh"); // RTK는 회전 엔드포인트 전용
     }
 
     private void addCookie(HttpServletResponse res, String name, String value, LocalDateTime exp, String path) {
