@@ -20,15 +20,14 @@ public class JwtTokenResolver {
     private final JwtTokenValidator jwtTokenValidator;
     private final CookieUtils cookieUtils;
 
-    @Value("${app.cookie.cookie-atk}")
-    private String cookieAtkKey;
-
+    @Value("${app.cookie.cookie-atk}") private String cookieAtkKey;
+    @Value("${app.cookie.cookie-rtk}") private String cookieRtkKey;
 
     public Optional<String> parseTokenFromRequest(HttpServletRequest request) {
         try {
             // Authorization Header 우선 (Legacy)
-            String header = request.getHeader("Authorization");
-            if (header != null && header.startsWith("Bearer ")) { return Optional.of(header.substring(7)); }
+            // String header = request.getHeader("Authorization");
+            // if (header != null && header.startsWith("Bearer ")) { return Optional.of(header.substring(7)); }
 
             // Cookie AT (Legacy)
             // if (request.getCookies() != null) {
@@ -40,17 +39,31 @@ public class JwtTokenResolver {
             // }
 
             // Cookie Util 사용
-            String tokenFromCookie = cookieUtils.getCookieValue(request, cookieAtkKey);
-            if (tokenFromCookie != null && !tokenFromCookie.isBlank()) {
-                log.info("🟢 Cookie Token found in JwtTokenResolver: {}", tokenFromCookie);
-                return Optional.of(tokenFromCookie);
+            String atkFromCookie = cookieUtils.getCookieValue(request, cookieAtkKey);
+            if (atkFromCookie != null && !atkFromCookie.isBlank()) {
+                log.info("🟢 Cookie Token found in JwtTokenResolver: {}", atkFromCookie);
+                return Optional.of(atkFromCookie);
             }
 
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
 
+    public Optional<String> parseRefreshTokenFromRequest(HttpServletRequest request) {
+        try {
+            // Cookie Util 사용
+            String rtkFromCookie = cookieUtils.getCookieValue(request, cookieRtkKey);
+            if (rtkFromCookie != null && !rtkFromCookie.isBlank()) {
+                log.info("🟢 Cookie RefreshToken found in JwtTokenResolver: {}", rtkFromCookie);
+                return Optional.of(rtkFromCookie);
+            }
+
+            return Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public JwtDto.TokenPayload resolveToken(String token) {

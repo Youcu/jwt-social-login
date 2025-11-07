@@ -3,6 +3,7 @@ package com.hooby.token.domain.auth.controller;
 import com.hooby.token.domain.auth.dto.AuthDto;
 import com.hooby.token.domain.auth.service.AuthService;
 import com.hooby.token.domain.user.dto.UserDto;
+import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.util.QueryParamValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,5 +73,13 @@ public class AuthController {
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
         return ResponseEntity.ok("Logout Successful");
+    }
+
+    // NO AUTH
+    @PostMapping("/refresh")
+    @Operation(summary = "리프레시 토큰", description = "리프레시 토큰으로 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.")
+    @ApiResponse(responseCode = "200", description = "리프레시 토큰 성공")
+    public ResponseEntity<JwtDto.TokenExpiresInfo> refresh(HttpServletRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.refreshTokens(request, response));
     }
 }

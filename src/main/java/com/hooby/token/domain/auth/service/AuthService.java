@@ -51,11 +51,14 @@ public class AuthService {
 
     @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        // 1) 서버 측 토큰(ATK/RTK) 무효화 (예: Redis blacklist)
         String accessToken = jwtTokenResolver.parseTokenFromRequest(request)
                 .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
 
-        tokenService.logoutByAtkWithValidation(accessToken);
+        String refreshToken = jwtTokenResolver.parseRefreshTokenFromRequest(request)
+                .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
+
+        // 1) 서버 측 토큰(ATK/RTK) 무효화 (예: Redis blacklist)
+        tokenService.logoutByAtkWithValidation(accessToken, refreshToken);
 
         // 2) 브라우저 쿠키 제거 (same name, same path, domain 등으로)
         cookieUtils.clearAccessTokenCookie(response);
@@ -78,6 +81,12 @@ public class AuthService {
     public AuthDto.ExistResponse checkUsernameExist(String username) {
         boolean exists = userRepository.existsByUsername(username);
         return AuthDto.ExistResponse.ofUsername(exists, username);
+    }
+
+    @Transactional
+    public JwtDto.TokenExpiresInfo refreshTokens(HttpServletRequest request, HttpServletResponse response) {
+        JwtDto.TokenInfo tokenInfo = tokenService.rotateByRtkWithValidation(request, response);
+        return JwtDto.TokenExpiresInfo.of(tokenInfo);
     }
 
     private void validateAlreadyUser(AuthDto.SignUpRequest request) {

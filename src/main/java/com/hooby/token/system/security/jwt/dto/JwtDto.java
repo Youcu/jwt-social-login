@@ -65,14 +65,6 @@ public class JwtDto {
     }
 
     @Builder @AllArgsConstructor @NoArgsConstructor @Getter
-    @Schema(description = "토큰 재발행 DTO", requiredProperties = {"refreshToken"})
-    public static class ReissueRequest {
-        @NotBlank(message = "Refresh Token을 입력해주세요.")
-        @Schema(description = "재발행할 Refresh Token", example = "refreshTokenString")
-        private String refreshToken;
-    }
-
-    @Builder @AllArgsConstructor @NoArgsConstructor @Getter
     @Schema(description = "토큰 만료시간 정보 발행 DTO")
     public static class TokenExpiresInfo {
         @Schema(description = "Access Token 만료 시간", example = "ISO DateTime")

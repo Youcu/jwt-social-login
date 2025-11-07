@@ -28,6 +28,7 @@ public class RequestMatcherHolder {
             new RequestInfo(HttpMethod.GET, "/api/v1/auth/email-exist", null),
             new RequestInfo(HttpMethod.GET, "/api/v1/auth/nickname-exist", null),
             new RequestInfo(HttpMethod.GET, "/api/v1/auth/username-exist", null),
+            new RequestInfo(HttpMethod.POST, "/api/v1/auth/refresh", null),
 
             // user
 
