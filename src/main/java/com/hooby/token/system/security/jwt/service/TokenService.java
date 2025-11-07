@@ -66,8 +66,26 @@ public class TokenService {
                 ? userPrincipal.getUserId().toString()
                 : userPrincipal.getUsername();
 
+        // 기존 RTK가 있다면 무효화 (중복 로그인 방지 및 이전 세션 정리)
+        String existingRtkUuid = tokenRedisRepository.getAllowedRtk(subject);
+        if (existingRtkUuid != null) {
+            log.info("⚠️ 기존 RTK 발견 - Subject: {}, 기존 UUID: {}. 블랙리스트 등록 후 새 토큰 발급", 
+                    subject, existingRtkUuid);
+            // 기존 RTK를 블랙리스트에 등록 (보수적으로 1시간)
+            tokenRedisRepository.setBlacklistRtk(existingRtkUuid, Duration.ofHours(1));
+            // 기존 허용 RTK 제거
+            tokenRedisRepository.clearAllowedRtk(subject);
+        }
+
+        String refreshUuid = extractRefreshUuid(tokenPair);
         Duration rtTtl = Duration.between(LocalDateTime.now(), tokenPair.getRefreshToken().getExpiredAt());
-        tokenRedisRepository.allowRtk(subject, extractRefreshUuid(tokenPair), rtTtl);
+        
+        log.info("🔐 토큰 발급 - Subject: {}, Refresh UUID: {}, TTL: {}초", subject, refreshUuid, rtTtl.getSeconds());
+        
+        tokenRedisRepository.allowRtk(subject, refreshUuid, rtTtl);
+        
+        log.info("✅ Redis에 RTK 등록 완료 - Subject: {}, UUID: {}", subject, refreshUuid);
+        
         return JwtDto.TokenInfo.of(tokenPair);
     }
 

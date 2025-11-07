@@ -56,7 +56,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         log.info("🟢 Issued Tokens - ATK: {}, RTK: {}", tokenInfo.getAccessToken(), tokenInfo.getRefreshToken());
 
-        // 3) 보안 쿠키 설정
+        // 3) 이전 path의 쿠키 삭제 (path 변경 시 이전 쿠키 제거)
+        cookieUtils.clearRtkCookiesByPaths(response);
+        
+        // 4) 보안 쿠키 설정
         cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
         cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
 

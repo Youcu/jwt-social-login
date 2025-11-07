@@ -109,6 +109,11 @@ public class CookieUtils {
         clearCookie(res, cookieRtkKey, cookieRtkApplyPath);
     }
 
+    public void clearRtkCookiesByPaths(HttpServletResponse res) {
+        clearCookie(res, cookieRtkKey, cookieRtkApplyPath);
+        clearCookie(res, cookieRtkKey, cookieRtkApplyPath + "/refresh");
+    }
+
     // HttpServletRequest 에서 쿠키 value 읽기
     public String getCookieValue(HttpServletRequest req, String name) {
         var cookie = WebUtils.getCookie(req, name);

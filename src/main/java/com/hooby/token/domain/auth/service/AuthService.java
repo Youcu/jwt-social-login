@@ -39,6 +39,9 @@ public class AuthService {
         User validatedUser = getValidatedLoginUser(request, passwordEncoder);
         JwtDto.TokenInfo tokenInfo = tokenService.issueTokens(UserPrincipal.from(validatedUser));
 
+        // 이전 path의 쿠키 삭제 (path 변경 시 이전 쿠키 제거)
+        cookieUtils.clearRtkCookiesByPaths(response);
+
         // Cookie Setup
         cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
         cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());

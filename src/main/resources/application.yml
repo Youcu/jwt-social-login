@@ -94,7 +94,7 @@ app:
     cookie-rtk: "RTK"
     same-site: "Lax"
     atk-apply-path: "/"
-    rtk-apply-path: "/api/v1/auth"  # refresh와 logout 엔드포인트 모두에서 접근 가능하도록 변경
+    rtk-apply-path: "/api/v1/auth"
 
   front-redirect-uri: "http://localhost:3000/oauth/callback"
   front-base-url: "http://localhost:3000"
