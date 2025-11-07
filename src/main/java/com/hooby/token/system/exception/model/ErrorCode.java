@@ -33,6 +33,7 @@ public enum ErrorCode {
 
     // OAUTH
     OAUTH_BAD_REQUEST(HttpStatus.BAD_REQUEST, "OAUTH BAD REQUEST", "OAUTH에 대해 잘못된 요청입니다."),
+    OAUTH_USER_ALREADY_EXIST(HttpStatus.CONFLICT, "OAUTH_USER_ALREADY_EXIST", "이미 다른 소셜/일반 유저로 존재하는 사용자입니다."),
 
     // USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER NOT FOUND", "존재하지 않는 사용자입니다."),

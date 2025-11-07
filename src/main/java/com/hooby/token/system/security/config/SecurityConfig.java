@@ -1,5 +1,6 @@
 package com.hooby.token.system.security.config;
 
+import com.hooby.token.domain.oauth2.handler.CustomFailureHandler;
 import com.hooby.token.domain.oauth2.handler.CustomSuccessHandler;
 import com.hooby.token.domain.oauth2.service.CustomOAuth2UserService;
 import com.hooby.token.system.security.jwt.config.JwtAuthenticationFilter;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
+    private final CustomFailureHandler customFailureHandler;
 
     @Value("${app.front-base-url}")
     private String frontBaseUrl;
@@ -49,7 +51,7 @@ public class SecurityConfig {
                     oauth2.loginPage(frontBaseUrl + "/login"); // ✅ 기본 로그인 페이지 비활성화 + 프론트로 유도
                     oauth2.userInfoEndpoint(user -> user.userService(customOAuth2UserService));
                     oauth2.successHandler(customSuccessHandler);
-                    // (선택) 실패 핸들러도 필요하면 여기서 설정
+                    oauth2.failureHandler(customFailureHandler);
                 })
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null)).permitAll()

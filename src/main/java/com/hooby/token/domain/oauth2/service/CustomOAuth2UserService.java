@@ -6,7 +6,6 @@ import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.domain.user.entity.enums.Role;
 import com.hooby.token.domain.user.repository.UserRepository;
 import com.hooby.token.system.exception.model.ErrorCode;
-import com.hooby.token.system.exception.model.RestException;
 import com.hooby.token.system.security.util.HmacUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user = userRepository.findByUsername(oAuth2UserDto.getUsername())
                 .orElseGet(() -> {
                     if(userRepository.existsByEmail(oAuth2UserDto.getEmail())) {
-                        throw new OAuth2AuthenticationException(String.valueOf(ErrorCode.USER_EMAIL_ALREADY_EXISTS));
+                        throw new OAuth2AuthenticationException(ErrorCode.OAUTH_USER_ALREADY_EXIST.getMessage());
                     }
 
                     return userRepository.save(oAuth2UserDto.toUser());
