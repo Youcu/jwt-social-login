@@ -2,7 +2,7 @@ package com.hooby.token.system.security.jwt.exception;
 
 import com.hooby.token.system.exception.model.ErrorCode;
 
-public class JwtExpiredException extends JwtBaseException {
+public class JwtExpiredException extends JwtRestException {
     public JwtExpiredException() {
         super(ErrorCode.JWT_EXPIRED);
     }

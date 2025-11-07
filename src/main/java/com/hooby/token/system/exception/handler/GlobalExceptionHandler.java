@@ -1,7 +1,7 @@
 package com.hooby.token.system.exception.handler;
 
 import com.hooby.token.system.exception.dto.ErrorResponse;
-import com.hooby.token.system.exception.model.BaseException;
+import com.hooby.token.system.exception.model.RestException;
 import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.jwt.exception.*;
 import jakarta.validation.ConstraintViolationException;
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
+    @ExceptionHandler(RestException.class)
+    public ResponseEntity<ErrorResponse> handleBaseException(RestException e) {
         return createErrorResponse(e.getErrorCode(), e.getMessage());
     }
 

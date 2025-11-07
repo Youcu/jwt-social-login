@@ -2,7 +2,7 @@ package com.hooby.token.system.security.jwt.exception;
 
 import com.hooby.token.system.exception.model.ErrorCode;
 
-public class JwtParseException extends JwtBaseException {
+public class JwtParseException extends JwtRestException {
     public JwtParseException() {
         super(ErrorCode.JWT_FAILED_PARSING);
     }

@@ -2,7 +2,7 @@ package com.hooby.token.system.security.jwt.exception;
 
 import com.hooby.token.system.exception.model.ErrorCode;
 
-public class JwtMalformedException extends JwtBaseException {
+public class JwtMalformedException extends JwtRestException {
     public JwtMalformedException() {
         super(ErrorCode.JWT_MALFORMED);
     }

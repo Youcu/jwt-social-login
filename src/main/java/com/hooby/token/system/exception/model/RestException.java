@@ -6,20 +6,20 @@ import org.springframework.http.HttpStatus;
 
 @Slf4j
 @Getter
-public class BaseException extends RuntimeException {
+public class RestException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public BaseException(ErrorCode errorCode) {
+    public RestException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
 
-    public BaseException(ErrorCode errorCode, Throwable cause) {
+    public RestException(ErrorCode errorCode, Throwable cause) {
         super(errorCode.getMessage(), cause); // With Cause
         this.errorCode = errorCode;
     }
 
-    public BaseException(ErrorCode errorCode, String message) {
+    public RestException(ErrorCode errorCode, String message) {
         super(message); // Custom Message
         this.errorCode = errorCode;
     }

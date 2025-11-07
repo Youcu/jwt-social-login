@@ -4,7 +4,7 @@ import com.hooby.token.domain.auth.dto.AuthDto;
 import com.hooby.token.domain.user.dto.UserDto;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.domain.user.repository.UserRepository;
-import com.hooby.token.system.exception.model.BaseException;
+import com.hooby.token.system.exception.model.RestException;
 import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
@@ -41,7 +41,7 @@ public class AuthService {
     @Transactional
     public void logout(HttpServletRequest request) {
         String accessToken = jwtTokenResolver.parseTokenFromRequest(request)
-                .orElseThrow(() -> new BaseException(ErrorCode.JWT_MISSING));
+                .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
         tokenService.logoutByAtkWithValidation(accessToken);
     }
 
@@ -65,15 +65,15 @@ public class AuthService {
 
     private void validateAlreadyUser(AuthDto.SignUpRequest request) {
         boolean isAlreadyUser = userRepository.existsByUsername(request.getUsername());
-        if (isAlreadyUser) throw new BaseException(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
+        if (isAlreadyUser) throw new RestException(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
     }
 
     private User getValidatedLoginUser(AuthDto.LoginRequest request, PasswordEncoder passwordEncoder) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new BaseException(ErrorCode.AUTH_USER_NOT_FOUND));
+                .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BaseException(ErrorCode.AUTH_PASSWORD_NOT_MATCH);
+            throw new RestException(ErrorCode.AUTH_PASSWORD_NOT_MATCH);
         }
 
         return user;

@@ -3,7 +3,7 @@ package com.hooby.token.domain.user.service;
 import com.hooby.token.domain.user.dto.UserDto;
 import com.hooby.token.domain.user.entity.User;
 import com.hooby.token.domain.user.repository.UserRepository;
-import com.hooby.token.system.exception.model.BaseException;
+import com.hooby.token.system.exception.model.RestException;
 import com.hooby.token.system.exception.model.ErrorCode;
 import com.hooby.token.system.security.model.UserPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class UserService {
          * Client 로부터 받은 UserPrincipal 이 실제 User 와 매칭 되는지 체크함과 동시에 Context 에 load 하기 위해서 사용
          */
         User foundUser = userRepository.findById(userPrincipal.getUserId())
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
         validateDuplication(request ,foundUser);
         request.encodePassword(passwordEncoder);
@@ -37,7 +37,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto.UserResponse retrieve(UserPrincipal userPrincipal) {
         User foundUser = userRepository.findById(userPrincipal.getUserId())
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
         return UserDto.UserResponse.from(foundUser);
     }
@@ -52,7 +52,7 @@ public class UserService {
         if (request.getEmail() != null &&
                 !foundUser.getEmail().equals(request.getEmail()) &&
                 userRepository.existsByEmail(request.getEmail())) {
-            throw new BaseException(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
+            throw new RestException(ErrorCode.USER_USERNAME_ALREADY_EXISTS);
         }
     }
 }

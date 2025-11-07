@@ -2,7 +2,7 @@ package com.hooby.token.system.security.jwt.exception;
 
 import com.hooby.token.system.exception.model.ErrorCode;
 
-public class JwtMissingException extends JwtBaseException {
+public class JwtMissingException extends JwtRestException {
     public JwtMissingException() {
         super(ErrorCode.JWT_MISSING);
     }

@@ -2,7 +2,7 @@ package com.hooby.token.system.security.jwt.exception;
 
 import com.hooby.token.system.exception.model.ErrorCode;
 
-public class JwtBlacklistException extends JwtBaseException {
+public class JwtBlacklistException extends JwtRestException {
     public JwtBlacklistException() {
         super(ErrorCode.JWT_BLACKLIST);
     }
