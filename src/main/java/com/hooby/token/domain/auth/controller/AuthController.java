@@ -71,6 +71,7 @@ public class AuthController {
         content = @Content(mediaType = "text/plain", examples = @ExampleObject(value = "Logout Successful"))
     )
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("\n🔥 로그아웃 !\n");
         authService.logout(request, response);
         return ResponseEntity.ok("Logout Successful");
     }
