@@ -36,7 +36,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
     private final CustomFailureHandler customFailureHandler;
-    private final OriginUtils originUtils;
 
     @Value("${app.front-base-url}")
     private String frontBaseUrl;
@@ -75,7 +74,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        List<String> origins = originUtils.originListParser(allowedOrigins);
+        List<String> origins = OriginUtils.originListParser(allowedOrigins);
         
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

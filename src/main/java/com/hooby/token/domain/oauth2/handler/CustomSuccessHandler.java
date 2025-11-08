@@ -5,12 +5,12 @@ import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.CookieUtils;
-import com.hooby.token.system.security.util.OriginUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,8 @@ import java.io.IOException;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
     private final CookieUtils cookieUtils;
-    private final OriginUtils originUtils;
+
+    @Value("${app.front-redirect-uri}") private String frontRedirectUri;
 
     @Override
     public void onAuthenticationSuccess(
@@ -49,12 +50,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         log.info("🟢 Issued Tokens - ATK: {}, RTK: {}", tokenInfo.getAccessToken(), tokenInfo.getRefreshToken());
 
-        // 3) 보안 쿠키 설정
+        // 4) 보안 쿠키 설정
         cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
         cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
 
-        // 4) FE로 리다이렉트 (요청 Origin에 맞춰 동적으로 결정)
-        String redirectUri = originUtils.getOAuth2RedirectUri(request);
-        getRedirectStrategy().sendRedirect(request, response, redirectUri);
+        // 4) FE로 리다이렉트 (토큰은 쿠키로 전달되므로 URL 노출 없음)
+        getRedirectStrategy().sendRedirect(request, response, frontRedirectUri);
     }
 }

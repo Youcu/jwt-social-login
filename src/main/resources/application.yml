@@ -97,7 +97,7 @@ app:
     rtk-apply-path: "/api/v1/auth"  # refresh와 logout 엔드포인트 모두에서 접근 가능하도록 변경
 
 #  front-redirect-uri: "${FRONT_REDIRECT_URI:http://localhost:3000/oauth/callback}"
-  front-redirect-uri: "${FRONT_REDIRECT_URI:/oauth/callback}"
+  front-redirect-uri: "${FRONT_REDIRECT_URI:http://localhost:3000/oauth/callback}"
   front-base-url: "${FRONT_BASE_URL:http://localhost:3000}"
   allowed-origins: "${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}"  # 콤마로 구분된 Origin 목록
 

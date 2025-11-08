@@ -1,10 +1,10 @@
 package com.hooby.token.domain.oauth2.handler;
 
-import com.hooby.token.system.security.util.OriginUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -18,7 +18,9 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class CustomFailureHandler implements AuthenticationFailureHandler {
-    private final OriginUtils originUtils;
+
+    @Value("${app.front-base-url}")
+    private String frontBaseUrl;
 
     @Override
     public void onAuthenticationFailure(
@@ -36,10 +38,10 @@ public class CustomFailureHandler implements AuthenticationFailureHandler {
             code = oae.getError().getErrorCode();
         }
 
-        // 요청 Origin에 맞춰 리다이렉트 URL 결정
-        String baseUrl = originUtils.determineBaseUrl(request);
-        String target = baseUrl + "/login?error=" + URLEncoder.encode(code, StandardCharsets.UTF_8);
+        String target = frontBaseUrl + "/login?error="
+                + URLEncoder.encode(code, StandardCharsets.UTF_8);
 
         response.sendRedirect(target);
     }
 }
+
