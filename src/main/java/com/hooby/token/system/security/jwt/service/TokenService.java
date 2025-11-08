@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -116,15 +115,21 @@ public class TokenService {
     // }
     public JwtDto.TokenInfo rotateByRtkWithValidation(HttpServletRequest request,
                                                       HttpServletResponse response) {
-        // 1) 쿠키에서 RTK 파싱
+        log.info("\n🔥 Refresh Token\n");
+
+        // 1) 쿠키에서 ATK/RTK 파싱
+        String accessToken = jwtTokenResolver.parseTokenFromRequest(request)
+                .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
+
         String refreshToken = jwtTokenResolver.parseRefreshTokenFromRequest(request)
                 .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
 
-        // 2) 파싱/검증
-        var payload = jwtTokenResolver.resolveToken(refreshToken);
-        jwtTokenValidator.validateRtk(payload); // type=RTK, exp, jti/uuid, blacklist 여부 등
+        // 2) 파싱/검증 및 기존 Tokens 제거
+        clearTokensByAtkWithValidation(accessToken, refreshToken);
+
 
         // 3) 사용자 로드
+        var payload = jwtTokenResolver.resolveToken(refreshToken);
         String subject = payload.getSubject();
         UserPrincipal principal = resolveUser(subject);
 
@@ -134,6 +139,9 @@ public class TokenService {
         // 5) 이전 RTK UUID 블랙리스트로 이동 (남은 TTL만큼)
         Duration oldRtTtl = Duration.between(LocalDateTime.now(), payload.getExpiredAt());
         tokenRedisRepository.setBlacklistRtk(payload.getRefreshUuid(), oldRtTtl);
+
+        log.info("\n🔥 Old Refresh Token UUID blacklisted: uuid={}, ttl={} seconds\n",
+                payload.getRefreshUuid(), oldRtTtl.getSeconds());
 
         // 6) 새 RTK 화이트리스트 등록
         Duration newRtTtl = Duration.between(LocalDateTime.now(), tokenPair.getRefreshToken().getExpiredAt());
@@ -180,6 +188,7 @@ public class TokenService {
 
         // 3) Redis에서 허용된 RTK UUID 조회
         String subject = atkPayload.getSubject();        // ATK의 subject 기준으로 조회
+
         String allowedRtkUuid = tokenRedisRepository.getAllowedRtk(subject);
 
         // 3-1) 허용 RTK가 없다면(이미 만료/제거) 서버 상태만 정리하고 빠진다
