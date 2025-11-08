@@ -40,8 +40,7 @@ public class AuthService {
         JwtDto.TokenInfo tokenInfo = tokenService.issueTokens(UserPrincipal.from(validatedUser));
 
         // Cookie Setup
-        cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
-        cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
+        setCookies(response, tokenInfo);
 
         return AuthDto.LoginResponse.of(
             UserDto.UserResponse.from(validatedUser),
@@ -58,11 +57,28 @@ public class AuthService {
                 .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
 
         // 1) 서버 측 토큰(ATK/RTK) 무효화 (예: Redis blacklist)
-        tokenService.logoutByAtkWithValidation(accessToken, refreshToken);
+        tokenService.clearTokensByAtkWithValidation(accessToken, refreshToken);
 
         // 2) 브라우저 쿠키 제거 (same name, same path, domain 등으로)
-        cookieUtils.clearAccessTokenCookie(response);
-        cookieUtils.clearRefreshTokenCookie(response);
+        clearCookies(response);
+    }
+
+    @Transactional
+    public void delete(UserPrincipal userPrincipal, HttpServletRequest request, HttpServletResponse response) {
+        User foundUser = userRepository.findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
+
+        String accessToken = jwtTokenResolver.parseTokenFromRequest(request)
+                .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
+
+        String refreshToken = jwtTokenResolver.parseRefreshTokenFromRequest(request)
+                .orElseThrow(() -> new RestException(ErrorCode.JWT_MISSING));
+
+        tokenService.clearTokensByAtkWithValidation(accessToken, refreshToken);
+
+        userRepository.delete(foundUser);
+
+        clearCookies(response);
     }
 
     @Transactional(readOnly = true)
@@ -105,4 +121,13 @@ public class AuthService {
         return user;
     }
 
+    private void clearCookies(HttpServletResponse response) {
+        cookieUtils.clearAccessTokenCookie(response);
+        cookieUtils.clearRefreshTokenCookie(response);
+    }
+
+    private void setCookies(HttpServletResponse response, JwtDto.TokenInfo tokenInfo) {
+        cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
+        cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
+    }
 }

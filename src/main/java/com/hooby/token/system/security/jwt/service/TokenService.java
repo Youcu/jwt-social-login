@@ -169,7 +169,7 @@ public class TokenService {
      * @param accessToken 로그아웃을 요청한 사용자의 Access Token 문자열
      * @throws JwtInvalidException 전달된 토큰이 유효한 Access Token이 아닐 경우 발생
      */
-    public void logoutByAtkWithValidation(String accessToken, String refreshToken) {
+    public void clearTokensByAtkWithValidation(String accessToken, String refreshToken) {
         // 1) ATK 파싱/검증
         var atkPayload = jwtTokenResolver.resolveToken(accessToken);
         jwtTokenValidator.validateAtk(atkPayload);

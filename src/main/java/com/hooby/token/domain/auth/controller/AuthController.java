@@ -4,8 +4,10 @@ import com.hooby.token.domain.auth.dto.AuthDto;
 import com.hooby.token.domain.auth.service.AuthService;
 import com.hooby.token.domain.user.dto.UserDto;
 import com.hooby.token.system.security.jwt.dto.JwtDto;
+import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.QueryParamValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,10 +17,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,6 +74,21 @@ public class AuthController {
         System.out.println("\n🔥 로그아웃 !\n");
         authService.logout(request, response);
         return ResponseEntity.ok("Logout Successful");
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "회원 탈퇴", description = "현재 로그인된 사용자의 계정을 삭제합니다.")
+    @ApiResponse(
+        responseCode = "200", description = "회원 탈퇴 성공",
+        content = @Content(mediaType = "text/plain", examples = @ExampleObject(value = "Delete User Successful"))
+    )
+    public ResponseEntity<String> delete(
+        @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        authService.delete(userPrincipal, request, response);
+        return ResponseEntity.ok("Delete User Successful");
     }
 
     // NO AUTH
