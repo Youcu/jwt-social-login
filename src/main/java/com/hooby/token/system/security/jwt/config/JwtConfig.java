@@ -1,5 +1,6 @@
 package com.hooby.token.system.security.jwt.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hooby.token.system.security.config.RequestMatcherHolder;
 import com.hooby.token.system.security.jwt.repository.TokenRedisRepository;
 import com.hooby.token.system.security.jwt.util.JwtTokenProvider;
@@ -73,9 +74,10 @@ public class JwtConfig {
             JwtTokenResolver jwtTokenResolver,
             UserLoadService userLoadService,
             JwtTokenValidator jwtTokenValidator,
-            RequestMatcherHolder requestMatcherHolder
+            RequestMatcherHolder requestMatcherHolder,
+            ObjectMapper objectMapper
     ) {
-        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator, requestMatcherHolder);
+        return new JwtAuthenticationFilter(jwtTokenResolver, userLoadService, jwtTokenValidator, requestMatcherHolder, objectMapper);
     }
 }
 

@@ -5,20 +5,17 @@ import com.hooby.token.system.security.jwt.dto.JwtDto;
 import com.hooby.token.system.security.jwt.service.TokenService;
 import com.hooby.token.system.security.model.UserPrincipal;
 import com.hooby.token.system.security.util.CookieUtils;
+import com.hooby.token.system.security.util.OriginUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -26,11 +23,7 @@ import java.time.LocalDateTime;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
     private final CookieUtils cookieUtils;
-
-    @Value("${app.cookie.secure:true}") private boolean cookieSecureOnHttps;
-    @Value("${app.front-redirect-uri}") private String frontRedirectUri;
-    @Value("${app.cookie.cookie-atk}") private String cookieAtkKey;
-    @Value("${app.cookie.cookie-rtk}") private String cookieRtkKey;
+    private final OriginUtils originUtils;
 
     @Override
     public void onAuthenticationSuccess(
@@ -60,7 +53,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookieUtils.addAccessTokenCookie(response, tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiresAt());
         cookieUtils.addRefreshTokenCookie(response, tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpiresAt());
 
-        // 4) FE로 리다이렉트 (토큰은 쿠키로 전달되므로 URL 노출 없음)
-        getRedirectStrategy().sendRedirect(request, response, frontRedirectUri);
+        // 4) FE로 리다이렉트 (요청 Origin에 맞춰 동적으로 결정)
+        String redirectUri = originUtils.getOAuth2RedirectUri(request);
+        getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 }

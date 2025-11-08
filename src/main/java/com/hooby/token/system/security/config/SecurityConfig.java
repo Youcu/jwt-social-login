@@ -4,6 +4,7 @@ import com.hooby.token.domain.oauth2.handler.CustomFailureHandler;
 import com.hooby.token.domain.oauth2.handler.CustomSuccessHandler;
 import com.hooby.token.domain.oauth2.service.CustomOAuth2UserService;
 import com.hooby.token.system.security.jwt.config.JwtAuthenticationFilter;
+import com.hooby.token.system.security.util.OriginUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +36,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestMatcherHolder requestMatcherHolder;
     private final CustomFailureHandler customFailureHandler;
+    private final OriginUtils originUtils;
 
     @Value("${app.front-base-url}")
     private String frontBaseUrl;
+
+    @Value("${app.allowed-origins}")
+    private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -69,10 +74,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontBaseUrl));
+        
+        List<String> origins = originUtils.originListParser(allowedOrigins);
+        
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        
+        log.info("🌐 CORS 허용 Origin: {}", origins);
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

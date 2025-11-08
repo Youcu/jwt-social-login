@@ -70,6 +70,16 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ErrorCode.JWT_FAILED_PARSING);
     }
 
+    @ExceptionHandler(JwtBlacklistException.class)
+    public ResponseEntity<ErrorResponse> handleJwtBlacklistException() {
+        return createErrorResponse(ErrorCode.JWT_BLACKLIST);
+    }
+
+    @ExceptionHandler(JwtMalformedException.class)
+    public ResponseEntity<ErrorResponse> handleJwtMalformedException() {
+        return createErrorResponse(ErrorCode.JWT_MALFORMED);
+    }
+
     @ExceptionHandler(HttpMessageConversionException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageConversionException(){
         return createErrorResponse(ErrorCode.GLOBAL_BAD_REQUEST);

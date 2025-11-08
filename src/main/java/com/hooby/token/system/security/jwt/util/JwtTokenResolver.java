@@ -25,23 +25,18 @@ public class JwtTokenResolver {
 
     public Optional<String> parseTokenFromRequest(HttpServletRequest request) {
         try {
-            // Authorization Header 우선 (Legacy)
-            // String header = request.getHeader("Authorization");
-            // if (header != null && header.startsWith("Bearer ")) { return Optional.of(header.substring(7)); }
+            // 1. Authorization Header 우선 (API 테스트용)
+            String header = request.getHeader("Authorization");
+            if (header != null && header.startsWith("Bearer ")) {
+                String token = header.substring(7);
+                log.debug("🟢 Authorization Header Token found in JwtTokenResolver");
+                return Optional.of(token);
+            }
 
-            // Cookie AT (Legacy)
-            // if (request.getCookies() != null) {
-            //     for (var c : request.getCookies()) {
-            //         if (cookieAtkKey.equals(c.getName()) && c.getValue() != null && !c.getValue().isBlank()) {
-            //             return Optional.of(c.getValue());
-            //         }
-            //     }
-            // }
-
-            // Cookie Util 사용
+            // 2. Cookie에서 토큰 읽기 (브라우저용)
             String atkFromCookie = cookieUtils.getCookieValue(request, cookieAtkKey);
             if (atkFromCookie != null && !atkFromCookie.isBlank()) {
-                log.info("🟢 Cookie Token found in JwtTokenResolver: {}", atkFromCookie);
+                log.debug("🟢 Cookie Token found in JwtTokenResolver");
                 return Optional.of(atkFromCookie);
             }
 
